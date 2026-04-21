@@ -1,5 +1,5 @@
-from mcp.server.fastmcp import FastMCP
 import yfinance as yf
+from mcp.server.fastmcp import FastMCP
 
 server_name: str = "yfinance-mcp"
 mcp = FastMCP(server_name)

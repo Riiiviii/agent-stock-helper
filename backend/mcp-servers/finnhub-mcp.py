@@ -34,24 +34,6 @@ def get_company_news(ticker: str):
         return {"error": f"Failed to fetch company news for {ticker}: {str(e)}"}
 
 
-@mcp.tool()
-def get_company_sentiment(ticker: str):
-    """This tool provides the current business sentiment analyzed from news article for a given stock ticker.
-
-    Args:
-        ticker: the stock ticker
-    """
-    try:
-        sentiment = client.news_sentiment(ticker)
-
-        if not sentiment:
-            return {"error": f"No data found for ticker: {ticker}"}
-
-        return sentiment
-    except Exception as e:
-        return {"error": f"Failed to fetch company sentiment for {ticker}: {str(e)}"}
-
-
 if __name__ == "__main__":
     print(f"MCP Server Status: {server_name} initialized")
     mcp.run()

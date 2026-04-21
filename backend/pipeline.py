@@ -28,6 +28,5 @@ def fetch_news(ticker: str):
     client = finnhub.Client(api_key=FINNHUB_API_KEY)
     today = datetime.today().strftime("%Y-%m-%d")
     month_ago = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
-
     news = client.company_news(ticker, _from=month_ago, to=today)
     return news

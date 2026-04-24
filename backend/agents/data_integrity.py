@@ -29,6 +29,7 @@ class News(TypedDict):
 
 
 def calculate_confidence_score(mcp_data: MCPData) -> dict:
+    missing_financials_deduction = calculate_financial_deduction(mcp_data["financials"])
     (news_count_deduction, news_time_deduction) = calculate_news_deductions(
         mcp_data["news"]
     )
@@ -63,7 +64,9 @@ def calculate_confidence_score(mcp_data: MCPData) -> dict:
 
 
 def calculate_financial_deduction(finances: dict) -> int:
-    pass
+    if not finances:
+        return MISSING_FINANCIALS_DEDUCTION
+    return 0
 
 
 def calculate_news_deductions(news: list[News]) -> tuple[int, int]:

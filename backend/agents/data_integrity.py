@@ -16,7 +16,23 @@ class MCPData(TypedDict):
     price_history: dict
 
 
+class News(TypedDict):
+    category: str
+    datetime: int
+    headline: str
+    id: int
+    image: str
+    related: str
+    source: str
+    summary: str
+    url: str
+
+
 def calculate_confidence_score(mcp_data: MCPData) -> dict:
+    (news_count_deduction, news_time_deduction) = calculate_news_deductions(
+        mcp_data["news"]
+    )
+
     return {
         "clean_data": {
             "company_information": mcp_data["company_information"],
@@ -43,7 +59,19 @@ def calculate_financial_deduction(finances: dict) -> int:
 
 
 def calculate_news_deductions(news: list[News]) -> tuple[int, int]:
-    pass
+    # If no news available
+    if not news:
+        return (NEWS_COUNT_DEDUCTION, NEWS_RECENCY_DEDUCTION)
+
+    # Number of news deduction
+    news_count_deduction = NEWS_COUNT_DEDUCTION if len(news) < 3 else 0
+
+    # News recency deductions
+    most_recent = max(datetime.fromtimestamp(article["datetime"]) for article in news)
+    cutoff = datetime.today() - timedelta(days=14)
+    news_time_deduction = NEWS_RECENCY_DEDUCTION if most_recent < cutoff else 0
+
+    return (news_count_deduction, news_time_deduction)
 
 
 def calculate_price_history_deductions(history: dict) -> int:

@@ -106,8 +106,22 @@ def test_calculate_price_history_deduction_no_close(no_close_price_history):
 #######################################################################################
 
 
-def test_calculate_information_deductions(valid_company_info):
+def test_calculate_information_deductions_valid(valid_company_info):
     assert calculate_information_deductions(valid_company_info) == (
         0,
         [],
     )
+
+
+def test_calculate_information_deductions_empty(empty_company_info):
+    deduction, missing_fields = calculate_information_deductions(empty_company_info)
+    assert deduction == MISSING_COMPANY_FIELDS_DEDUCTION
+    assert missing_fields == ["sector", "industry", "marketCap"]
+
+
+def test_calculate_information_deductions_missing_fields(missing_fields_company_info):
+    deduction, missing_fields = calculate_information_deductions(
+        missing_fields_company_info
+    )
+    assert deduction == MISSING_COMPANY_FIELDS_DEDUCTION
+    assert missing_fields == ["sector", "industry", "marketCap"]

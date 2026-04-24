@@ -64,13 +64,31 @@ def calculate_confidence_score(mcp_data: MCPData) -> dict:
 
 
 def calculate_financial_deduction(finances: dict) -> int:
+    """
+    Checks if financial data is present and returns the appropriate deduction.
+
+    Args:
+        finances: the financials dict returned from the yfinance MCP tool
+
+    Returns:
+        MISSING_FINANCIALS_DEDUCTION if empty, 0 otherwise
+    """
     if not finances:
         return MISSING_FINANCIALS_DEDUCTION
     return 0
 
 
 def calculate_news_deductions(news: list[News]) -> tuple[int, int]:
-    # If no news available
+    """
+    Checks news count and recency and returns the appropriate deductions.
+
+    Args:
+        news: list of news articles returned from the Finnhub MCP tool
+
+    Returns:
+        A tuple of (news_count_deduction, news_recency_deduction).
+        Each is either its respective constant or 0 if the condition is not triggered.
+    """
     if not news:
         return (NEWS_COUNT_DEDUCTION, NEWS_RECENCY_DEDUCTION)
 
@@ -85,9 +103,28 @@ def calculate_news_deductions(news: list[News]) -> tuple[int, int]:
     return (news_count_deduction, news_time_deduction)
 
 
-def calculate_price_history_deductions(history: dict) -> int:
+def calculate_price_history_deduction(price_history: dict) -> int:
+    """
+    Checks if price history covers at least 90 days of data.
+
+    Args:
+        price_history: the price history dict returned from the yfinance MCP tool
+
+    Returns:
+        PRICE_HISTORY_DEDUCTION if data covers fewer than 90 days, 0 otherwise.
+    """
     pass
 
 
 def calculate_information_deductions(info: dict) -> int:
+    """
+    Checks if key company fields are present in the company information.
+
+    Args:
+        info: the company information dict returned from the yfinance MCP tool
+
+    Returns:
+        MISSING_COMPANY_FIELDS_DEDUCTION if sector, industry, or market cap
+        are missing, 0 otherwise.
+    """
     pass

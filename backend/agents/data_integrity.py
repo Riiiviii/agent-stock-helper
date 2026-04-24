@@ -29,13 +29,18 @@ class News(TypedDict):
 
 
 def calculate_confidence_score(mcp_data: MCPData) -> dict:
-    missing_financials_deduction = calculate_financial_deduction(mcp_data["financials"])
 
+    missing_financials_deduction: int = calculate_financial_deduction(
+        mcp_data["financials"]
+    )
     (news_count_deduction, news_time_deduction) = calculate_news_deductions(
         mcp_data["news"]
     )
-    price_history_deduction = calculate_price_history_deduction(
+    price_history_deduction: int = calculate_price_history_deduction(
         mcp_data["price_history"]
+    )
+    company_fields_deduction: int = calculate_information_deductions(
+        mcp_data["company_information"]
     )
 
     score = (
@@ -118,4 +123,8 @@ def calculate_price_history_deduction(price_history: dict) -> int:
 
 def calculate_information_deductions(info: dict) -> int:
     """Returns MISSING_COMPANY_FIELDS_DEDUCTION if sector, industry, or marketCap are absent."""
-    pass
+    required_fields = ["sector", "industry", "marketCap"]
+    for field in required_fields:
+        if not info.get(field):
+            return MISSING_COMPANY_FIELDS_DEDUCTION
+    return 0

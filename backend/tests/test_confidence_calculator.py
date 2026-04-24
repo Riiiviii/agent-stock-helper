@@ -53,6 +53,24 @@ def test_calculate_news_deductions_valid(valid_company_news):
     assert time_deduction == 0
 
 
+def test_calculate_news_deductions_empty(empty_news):
+    assert calculate_news_deductions(empty_news) == (
+        NEWS_COUNT_DEDUCTION,
+        NEWS_RECENCY_DEDUCTION,
+    )
+
+
+def test_calculate_news_deductions_insufficient(insufficient_company_news):
+    assert calculate_news_deductions(insufficient_company_news) == (
+        NEWS_COUNT_DEDUCTION,
+        0,
+    )
+
+
+def test_calculate_news_deductions_stale(stale_company_news):
+    assert calculate_news_deductions(stale_company_news) == (0, NEWS_RECENCY_DEDUCTION)
+
+
 #######################################################################################
 #                             COMPANY INFORMATION TESTING                             #
 #######################################################################################

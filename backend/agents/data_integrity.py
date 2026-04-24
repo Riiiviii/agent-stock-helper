@@ -29,7 +29,11 @@ class News(TypedDict):
 
 
 def calculate_confidence_score(mcp_data: MCPData) -> dict:
-
+    """
+    Runs all deduction checks against raw MCP data and returns the full
+    validated output schema including clean data, confidence score breakdown,
+    and issues list.
+    """
     missing_financials_deduction: int = calculate_financial_deduction(
         mcp_data["financials"]
     )

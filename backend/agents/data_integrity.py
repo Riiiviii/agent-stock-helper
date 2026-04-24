@@ -64,15 +64,7 @@ def calculate_confidence_score(mcp_data: MCPData) -> dict:
 
 
 def calculate_financial_deduction(finances: dict) -> int:
-    """
-    Checks if financial data is present and returns the appropriate deduction.
-
-    Args:
-        finances: the financials dict returned from the yfinance MCP tool
-
-    Returns:
-        MISSING_FINANCIALS_DEDUCTION if empty, 0 otherwise
-    """
+    """Returns MISSING_FINANCIALS_DEDUCTION if finances is empty, 0 otherwise."""
     if not finances:
         return MISSING_FINANCIALS_DEDUCTION
     return 0
@@ -80,22 +72,17 @@ def calculate_financial_deduction(finances: dict) -> int:
 
 def calculate_news_deductions(news: list[News]) -> tuple[int, int]:
     """
-    Checks news count and recency and returns the appropriate deductions.
+    Returns count and recency deductions for news data.
 
-    Args:
-        news: list of news articles returned from the Finnhub MCP tool
-
-    Returns:
-        A tuple of (news_count_deduction, news_recency_deduction).
-        Each is either its respective constant or 0 if the condition is not triggered.
+    Returns a tuple of (news_count_deduction, news_recency_deduction).
+    Both deductions apply if news is empty. Uses Unix timestamps from
+    Finnhub.
     """
     if not news:
         return (NEWS_COUNT_DEDUCTION, NEWS_RECENCY_DEDUCTION)
 
-    # Number of news deduction
     news_count_deduction = NEWS_COUNT_DEDUCTION if len(news) < 3 else 0
 
-    # News recency deductions
     most_recent = max(datetime.fromtimestamp(article["datetime"]) for article in news)
     cutoff = datetime.today() - timedelta(days=14)
     news_time_deduction = NEWS_RECENCY_DEDUCTION if most_recent < cutoff else 0
@@ -105,26 +92,26 @@ def calculate_news_deductions(news: list[News]) -> tuple[int, int]:
 
 def calculate_price_history_deduction(price_history: dict) -> int:
     """
-    Checks if price history covers at least 90 days of data.
+    Returns PRICE_HISTORY_DEDUCTION if price history spans fewer than 90 days.
 
-    Args:
-        price_history: the price history dict returned from the yfinance MCP tool
-
-    Returns:
-        PRICE_HISTORY_DEDUCTION if data covers fewer than 90 days, 0 otherwise.
+    Uses the Close key from the yfinance history dict. Dates are ISO strings,
+    not Unix timestamps.
     """
-    pass
+    if not price_history:
+        return PRICE_HISTORY_DEDUCTION
+
+    close_dates = list(price_history.get("Close", {}).keys())
+
+    if not close_dates:
+        return PRICE_HISTORY_DEDUCTION
+
+    earliest = datetime.fromisoformat(close_dates[0])
+    latest = datetime.fromisoformat(close_dates[-1])
+    days_of_data = (latest - earliest).days
+
+    return PRICE_HISTORY_DEDUCTION if days_of_data < 90 else 0
 
 
 def calculate_information_deductions(info: dict) -> int:
-    """
-    Checks if key company fields are present in the company information.
-
-    Args:
-        info: the company information dict returned from the yfinance MCP tool
-
-    Returns:
-        MISSING_COMPANY_FIELDS_DEDUCTION if sector, industry, or market cap
-        are missing, 0 otherwise.
-    """
+    """Returns MISSING_COMPANY_FIELDS_DEDUCTION if sector, industry, or marketCap are absent."""
     pass

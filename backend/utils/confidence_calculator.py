@@ -171,6 +171,9 @@ def calculate_information_deductions(info: dict) -> tuple[int, list[str]]:
     Returns the deduction if any field is missing, along with which fields were absent.
     """
     required_fields = ["sector", "industry", "marketCap"]
+    if not info:
+        return (MISSING_COMPANY_FIELDS_DEDUCTION, required_fields)
+
     missing_fields = [field for field in required_fields if not info.get(field)]
     deduction = MISSING_COMPANY_FIELDS_DEDUCTION if missing_fields else 0
     return (deduction, missing_fields)

@@ -1,8 +1,15 @@
+import math
 import yfinance as yf
 from mcp.server.fastmcp import FastMCP
 
 server_name: str = "yfinance-mcp"
 mcp = FastMCP(server_name)
+
+
+def _clean_nan(value):
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    return value
 
 
 @mcp.tool()
@@ -38,7 +45,13 @@ def get_company_financials(ticker: str):
         if financials.empty:
             return {"error": f"No data found for ticker: {ticker}"}
 
-        return financials.to_dict()
+        raw = financials.to_dict()
+        cleaned = {}
+        for column, values in raw.items():
+            cleaned[column] = {}
+            for date, value in values.items():
+                cleaned[column][date] = _clean_nan(value)
+        return cleaned
     except Exception as e:
         return {"error": f"Failed to fetch company financials for {ticker}: {str(e)}"}
 
@@ -53,10 +66,17 @@ def get_price_history(ticker: str):
     try:
         user_ticker = yf.Ticker(ticker)
         history = user_ticker.history(period="1y")
+
         if history.empty:
             return {"error": f"No data found for ticker: {ticker}"}
 
-        return history.to_dict()
+        raw = history.to_dict()
+        cleaned = {}
+        for column, values in raw.items():
+            cleaned[column] = {}
+            for date, value in values.items():
+                cleaned[column][date] = _clean_nan(value)
+        return cleaned
     except Exception as e:
         return {"error": f"Failed to fetch company history for {ticker}: {str(e)}"}
 

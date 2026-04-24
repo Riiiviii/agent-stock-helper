@@ -72,6 +72,36 @@ def test_calculate_news_deductions_stale(stale_company_news):
 
 
 #######################################################################################
+#                              COMPANY PRICE HISTORY TESTING                          #
+#######################################################################################
+
+
+def test_calculate_price_history_deduction_valid(valid_company_price_history):
+    assert calculate_price_history_deduction(valid_company_price_history) == 0
+
+
+def test_calculate_price_history_deduction_empty(empty_price_history):
+    assert (
+        calculate_price_history_deduction(empty_price_history)
+        == PRICE_HISTORY_DEDUCTION
+    )
+
+
+def test_calculate_price_history_deduction_insufficient(insufficient_price_history):
+    assert (
+        calculate_price_history_deduction(insufficient_price_history)
+        == PRICE_HISTORY_DEDUCTION
+    )
+
+
+def test_calculate_price_history_deduction_no_close(no_close_price_history):
+    assert (
+        calculate_price_history_deduction(no_close_price_history)
+        == PRICE_HISTORY_DEDUCTION
+    )
+
+
+#######################################################################################
 #                             COMPANY INFORMATION TESTING                             #
 #######################################################################################
 
@@ -81,12 +111,3 @@ def test_calculate_information_deductions(valid_company_info):
         0,
         [],
     )
-
-
-#######################################################################################
-#                              COMPANY PRICE HISTORY TESTING                          #
-#######################################################################################
-
-
-def test_calculate_price_history_deduction(valid_company_price_history):
-    assert calculate_price_history_deduction(valid_company_price_history) == 0

@@ -33,6 +33,14 @@ def calculate_confidence_score(mcp_data: MCPData) -> dict:
         mcp_data["news"]
     )
 
+    score = (
+        100
+        + missing_financials_deduction
+        + news_count_deduction
+        + news_time_deduction
+        + price_history_deduction
+        + company_fields_deduction
+    )
     return {
         "clean_data": {
             "company_information": mcp_data["company_information"],

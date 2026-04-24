@@ -1,4 +1,7 @@
+from typing import cast
+
 from utils.confidence_calculator import (
+    MCPData,
     calculate_confidence_score,
     calculate_financial_deduction,
     calculate_information_deductions,
@@ -25,6 +28,30 @@ def test_calculate_confidence_score_valid_data(valid_mcp_data):
     assert result["confidence_score"]["deductions"]["news_older_than_14_days"] == 0
     assert result["confidence_score"]["deductions"]["price_history_under_90_days"] == 0
     assert result["confidence_score"]["deductions"]["missing_company_fields"] == 0
+
+
+def test_calculate_confidence_score_all_empty():
+    empty_mcp_data = cast(
+        MCPData,
+        {
+            "company_information": {},
+            "news": [],
+            "financials": {},
+            "price_history": {},
+        },
+    )
+    result = calculate_confidence_score(empty_mcp_data)
+
+    assert (
+        result["confidence_score"]["score"]
+        == 100
+        + MISSING_FINANCIALS_DEDUCTION
+        + NEWS_COUNT_DEDUCTION
+        + NEWS_RECENCY_DEDUCTION
+        + PRICE_HISTORY_DEDUCTION
+        + MISSING_COMPANY_FIELDS_DEDUCTION
+    )
+    assert len(result["issues"]) == 5
 
 
 #######################################################################################

@@ -34,18 +34,58 @@ def calculate_confidence_score(mcp_data: MCPData) -> dict:
     validated output schema including clean data, confidence score breakdown,
     and issues list.
     """
+    issues: list[dict] = []
+
     missing_financials_deduction: int = calculate_financial_deduction(
         mcp_data["financials"]
     )
-    (news_count_deduction, news_time_deduction) = calculate_news_deductions(
+    if missing_financials_deduction:
+        issues.append(
+            {
+                "reason": "missing_financials",
+                "description": "No financial data available for this ticker",
+            }
+        )
+
+    news_count_deduction, news_time_deduction = calculate_news_deductions(
         mcp_data["news"]
     )
+    if news_count_deduction:
+        issues.append(
+            {
+                "reason": "insufficient_news",
+                "description": f"Only {len(mcp_data['news'])} articles found, minimum is 3",
+            }
+        )
+    if news_time_deduction:
+        issues.append(
+            {
+                "reason": "stale_news",
+                "description": "Most recent article is older than 14 days",
+            }
+        )
+
     price_history_deduction: int = calculate_price_history_deduction(
         mcp_data["price_history"]
     )
-    company_fields_deduction: int = calculate_information_deductions(
+    if price_history_deduction:
+        issues.append(
+            {
+                "reason": "insufficient_price_history",
+                "description": "Price history spans fewer than 90 days",
+            }
+        )
+
+    company_fields_deduction, missing_fields = calculate_information_deductions(
         mcp_data["company_information"]
     )
+    if missing_fields:
+        issues.append(
+            {
+                "reason": "missing_company_fields",
+                "description": f"Missing fields: {', '.join(missing_fields)}",
+            }
+        )
 
     score = (
         100
@@ -72,7 +112,7 @@ def calculate_confidence_score(mcp_data: MCPData) -> dict:
                 "missing_company_fields": company_fields_deduction,
             },
         },
-        "issues": [],
+        "issues": issues,
     }
 
 
@@ -125,10 +165,12 @@ def calculate_price_history_deduction(price_history: dict) -> int:
     return PRICE_HISTORY_DEDUCTION if days_of_data < 90 else 0
 
 
-def calculate_information_deductions(info: dict) -> int:
-    """Returns MISSING_COMPANY_FIELDS_DEDUCTION if sector, industry, or marketCap are absent."""
+def calculate_information_deductions(info: dict) -> tuple[int, list[str]]:
+    """
+    Returns deduction and list of missing fields from sector, industry, and marketCap.
+    Returns the deduction if any field is missing, along with which fields were absent.
+    """
     required_fields = ["sector", "industry", "marketCap"]
-    for field in required_fields:
-        if not info.get(field):
-            return MISSING_COMPANY_FIELDS_DEDUCTION
-    return 0
+    missing_fields = [field for field in required_fields if not info.get(field)]
+    deduction = MISSING_COMPANY_FIELDS_DEDUCTION if missing_fields else 0
+    return (deduction, missing_fields)

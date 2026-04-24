@@ -1,0 +1,19 @@
+{
+  "clean_data": {
+    "company_information": {},
+    "news": [],
+    "financials": {},
+    "price_history": {}
+  },
+  "confidence_score": {
+    "score": 100,
+    "deductions": {
+      "missing_financials": 0,
+      "news_count_below_3": 0,
+      "news_older_than_14_days": 0,
+      "price_history_under_90_days": 0,
+      "missing_company_fields": 0
+    }
+  },
+  "issues": []
+}

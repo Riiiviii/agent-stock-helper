@@ -1,0 +1,68 @@
+[
+  {
+    "category": "company",
+    "datetime": 1776990569,
+    "headline": "Where is Microsoft’s headquarters? Inside the tech giant’s corporate campus",
+    "id": 139871281,
+    "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
+    "related": "AAPL",
+    "source": "Yahoo",
+    "summary": "While Apple (AAPL) may be known for its spaceship-shaped Cupertino headquarters and Amazon (AMZN) operates out of three glass-enclosed spheres in Seattle, Microsoft (MSFT) distinguishes itself with a leafy green base that leans more “futuristic college” than sterile design showpiece. Its recently ...",
+    "url": "https://finnhub.io/api/news?id=66a1f3227b8a53758bc6a870dfbdda6fc417c779d1f9a9a8fa6184ddb5f1229d"
+  },
+  {
+    "category": "company",
+    "datetime": 1776988500,
+    "headline": "Review & Preview: Earnings Storm",
+    "id": 139871280,
+    "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
+    "related": "AAPL",
+    "source": "Yahoo",
+    "summary": "Disappointing results from IBM and ServiceNow weighed on tech stocks. Chip stocks managed to still thrive, though.",
+    "url": "https://finnhub.io/api/news?id=1118fa60c939a763e7773c24004bb4d380a8bd920176722f175e88c1516b6d10"
+  },
+  {
+    "category": "company",
+    "datetime": 1776983773,
+    "headline": "VeriSign Q1 Earnings Call Highlights",
+    "id": 139870490,
+    "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
+    "related": "AAPL",
+    "source": "Yahoo",
+    "summary": "VeriSign (NASDAQ:VRSN) reported what it called a strong start to 2026, citing record levels in its combined .com and .net domain name base and higher year-over-year revenue and earnings. Executives also announced a forthcoming .com wholesale price increase effective Nov. 1, 2026 and raised the compa",
+    "url": "https://finnhub.io/api/news?id=d9d255206836b1b68ddc4f6a184b9c900826a6bfb00cd4139eefef2f5128a820"
+  },
+  {
+    "category": "company",
+    "datetime": 1776978007,
+    "headline": "AI brings Foxconn a chance to cut its reliance on Apple",
+    "id": 139869319,
+    "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
+    "related": "AAPL",
+    "source": "Yahoo",
+    "summary": "Apple’s largest iPhone assembler is starting to look like an unlikely winner of the AI era. In March, Foxconn reported a 46 per cent year-on...",
+    "url": "https://finnhub.io/api/news?id=0ec04fae30113d30c0df3297d708c4656d6ff99ac8eedab16cd4c0dedecccd36"
+  },
+  {
+    "category": "company",
+    "datetime": 1776974503,
+    "headline": "Nasdaq Slides. Earnings Fail to Save the Day.",
+    "id": 139869320,
+    "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
+    "related": "AAPL",
+    "source": "Yahoo",
+    "summary": "The Nasdaq slipped from record highs on Thursday after the first big wave of tech earnings failed to save the day.  The Dow dropped 180 points, or 0.4%.  The S&P and Nasdaq finished Wednesday at closing highs.",
+    "url": "https://finnhub.io/api/news?id=465a553370f8ebdd4a76a711768d167d918fb6116c9011c80734f53f476e46e2"
+  },
+  {
+    "category": "company",
+    "datetime": 1776973635,
+    "headline": "Trump tells the Telegraph the US will retaliate if Britain continues to 'target' companies like Apple, Google and Meta",
+    "id": 139870542,
+    "image": "",
+    "related": "AAPL",
+    "source": "Finnhub",
+    "summary": "Trump tells the Telegraph the US will retaliate if Britain continues to 'target' companies like Apple, Google and Meta...",
+    "url": "https://finnhub.io/api/news?id=8da664dbf06239d240d69ca147a6bb43dd96642e485d307e43d703291bb76b86"
+  }
+]

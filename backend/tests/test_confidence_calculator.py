@@ -32,8 +32,14 @@ def test_calculate_confidence_score_valid_data(valid_mcp_data):
 #######################################################################################
 
 
-def test_calculate_financial_deduction(valid_company_financials):
+def test_calculate_financial_deduction_valid(valid_company_financials):
     assert calculate_financial_deduction(valid_company_financials) == 0
+
+
+def test_calculate_financial_deduction_invalid(empty_financials):
+    assert (
+        calculate_financial_deduction(empty_financials) == MISSING_FINANCIALS_DEDUCTION
+    )
 
 
 #######################################################################################

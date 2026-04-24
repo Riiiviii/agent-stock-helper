@@ -21,6 +21,21 @@ def empty_price_history():
     return {}
 
 
+@pytest.fixture
+def no_close_price_history():
+    return {"Open": {"2026-01-01T00:00:00-05:00": 150.0}}
+
+
+@pytest.fixture
+def insufficient_price_history():
+    return {
+        "Close": {
+            "2026-04-01T00:00:00-04:00": 270.0,
+            "2026-04-23T00:00:00-04:00": 273.0,
+        }
+    }
+
+
 #######################################################################################
 #                          COMPANY INFO FIXTURE DECLARATIONS                          #
 #######################################################################################

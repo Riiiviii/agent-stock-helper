@@ -39,9 +39,9 @@ GET /analyze?ticker=AAPL
             ▼
     Research Pack
     (single structured object, stable contract)
-            │
-    ┌───────┼───────┬───────┐
-    ▼       ▼       ▼       ▼
+                  │
+    ┌─────────────┼─────────┬─────────────┐
+    ▼             ▼         ▼             ▼
 Fundamentals  Sentiment  Risk/Macro  Competitive
    Agent       Agent      Agent       Agent
    (MCP)                             (MCP)

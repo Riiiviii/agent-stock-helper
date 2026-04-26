@@ -11,7 +11,7 @@
 
 ---
 
-## Phase 1 — Foundations + MCP Setup (3–4 days)
+## Phase 1 — Foundations + MCP Setup
 
 ### Goal
 
@@ -28,7 +28,7 @@ Get real data flowing end-to-end via MCP tools with zero agents.
 
 Wrap both data sources as MCP servers. This is the right time — retrofitting later is painful.
 
-- `yfinance-mcp` — exposes tools: `get_company_info`, `get_financials`, `get_price_history`
+- `yfinance-mcp` — exposes tools: `get_company_information`, `get_company_financials`, `get_price_history`, `get_analyst_recommendations`, `get_insider_transactions`
 - `finnhub-mcp` — exposes tools: `get_company_news`
 
 Your agents will call these tools via the OpenAI SDK MCP integration, not call the APIs directly.
@@ -59,64 +59,71 @@ Your agents will call these tools via the OpenAI SDK MCP integration, not call t
 
 > If this isn't solid, everything else collapses.
 
+### Status: ✅ Complete
+
 ---
 
-## Phase 2 — Data Integrity Agent (2–3 days)
+## Phase 2 — Data Integrity Layer
 
 ### Goal
 
-Turn messy data into trusted structured input.
+Turn messy data into trusted structured input using deterministic rules — no LLM.
 
 ### Tasks
 
-**1. Define schema (don't skip this)**
+**1. Define schema**
 
 ```json
 {
   "clean_data": {...},
-  "confidence_score": 0-100,
+  "confidence_score": {
+    "score": 0-100,
+    "deductions": {
+      "missing_financials": 0,
+      "news_count_below_3": 0,
+      "news_older_than_14_days": 0,
+      "price_history_under_90_days": 0,
+      "missing_company_fields": 0
+    }
+  },
   "issues": []
 }
 ```
 
-**2. Implement agent**
+**2. Implement deterministic scoring**
 
-Responsibilities:
-
-- Detect missing fields
-- Check news recency (timestamps)
-- Basic consistency checks
-
-**3. Add deterministic rules (non-LLM where possible)**
-
-Confidence score is rule-based, not LLM-generated. Define the scoring logic explicitly — a single number with no explanation is a black box and impossible to debug.
-
-Start at 100 and deduct:
+Confidence score is rule-based, not LLM-generated. Start at 100 and deduct:
 
 ```json
 {
-  "confidence_score": 72,
-  "calculation": {
-    "missing_financials": -20,
-    "news_count_below_3": -10,
-    "stale_price_data": -8
-  }
+  "missing_financials": -20,
+  "news_count_below_3": -10,
+  "news_older_than_14_days": -8,
+  "price_history_under_90_days": -15,
+  "missing_company_fields": -15
 }
 ```
 
-Define every deduction rule upfront. If you add a new rule later, document it. This makes the score auditable and makes debugging possible when the pipeline produces bad output.
+Every deduction rule is defined upfront and auditable. The score never blocks the pipeline — it flows through as a signal that the Judge Agent uses to calibrate confidence in its output.
+
+**3. Write tests**
+
+All deduction rules must have passing unit tests before moving on.
 
 > Don't rely on LLM judgment for data validation. Rules are faster, cheaper, and auditable.
 
 ### Exit Criteria
 
 - Clean structured data
-- Confidence score with clear reasoning
-- Issues list that actually catches real problems
+- Confidence score with clear deduction breakdown
+- Issues list that catches real problems
+- 14 passing unit tests
+
+### Status: ✅ Complete
 
 ---
 
-## Phase 3 — Research Pack (1 day)
+## Phase 3 — Research Pack
 
 ### Goal
 
@@ -144,9 +151,11 @@ Transform validated data into a single object passed to all downstream agents:
 - Single clean object that every downstream agent receives
 - No agent fetches its own data after this point
 
+### Status: 🔄 In progress
+
 ---
 
-## Phase 4 — Panel Agents (4–6 days)
+## Phase 4 — Panel Agents
 
 ### Goal
 
@@ -160,7 +169,7 @@ Build ONE agent at a time. Do not parallelize development.
 - Profitability
 - Valuation signals (P/E, margins)
 
-**Data source:** financial_snapshot from research pack
+**Data source:** financial_snapshot from research pack + `get_analyst_recommendations` via MCP
 
 ### 4.2 Sentiment Agent
 
@@ -186,7 +195,7 @@ Build ONE agent at a time. Do not parallelize development.
 - Relative positioning signals from news
 - Obvious threats or advantages
 
-**Data source:** company_summary + financial_snapshot + targeted Finnhub news queries
+**Data source:** company_summary + financial_snapshot + targeted Finnhub news queries via MCP
 
 ### Critical Rule
 
@@ -202,9 +211,11 @@ If two agents sound the same → your prompts are wrong. Tighten the schemas.
 
 For one ticker, you get 4 clearly different perspectives with non-overlapping insights.
 
+### Status: ⏳ Pending
+
 ---
 
-## Phase 5 — Judge Agent (2–3 days)
+## Phase 5 — Judge Agent
 
 ### Goal
 
@@ -234,6 +245,7 @@ Synthesise multiple perspectives into one coherent, structured thesis.
 - Must surface disagreements between agents
 - Must acknowledge uncertainty — a confident output with low data quality is a bug, not a feature
 - `thesis_strength` should be lower when agents disagree significantly
+- Run at `temperature=0` for consistency
 
 > The judge cannot say "buy" or "sell." It produces a structured reasoning output. That's a feature, not a limitation.
 
@@ -243,9 +255,11 @@ Synthesise multiple perspectives into one coherent, structured thesis.
 - Conflicting signals are explicitly called out
 - You can explain every field to an interviewer
 
+### Status: ⏳ Pending
+
 ---
 
-## Phase 6 — Orchestration (2–3 days)
+## Phase 6 — Orchestration
 
 ### Goal
 
@@ -261,7 +275,7 @@ fetch (MCP) → validate → research pack → panel agents (parallel) → judge
 
 - Parallel panel execution with `asyncio`
 - Structured error handling at each stage (don't let one agent failure kill the run)
-- Structured logging at every stage with a `run_id` — you will need this when agents produce bad output:
+- Structured logging at every stage with a `run_id`:
 
 ```json
 {
@@ -280,9 +294,11 @@ fetch (MCP) → validate → research pack → panel agents (parallel) → judge
 - One API call runs the full pipeline reliably
 - Individual stage failures are caught and logged, not silently swallowed
 
+### Status: ⏳ Pending
+
 ---
 
-## Phase 7 — Auth + Persistence (3–4 days)
+## Phase 7 — Auth + Persistence
 
 ### Goal
 
@@ -295,8 +311,6 @@ Use **Clerk** or **Supabase Auth**. Do not build auth from scratch — it doesn'
 ### Database
 
 **Neon (Postgres)** with **SQLAlchemy** + **asyncpg**.
-
-If you've only used Neon with Prisma/NestJS before: SQLAlchemy is the Python equivalent. The Neon connection string works identically — it's just Postgres.
 
 ### Store
 
@@ -312,9 +326,11 @@ If you've only used Neon with Prisma/NestJS before: SQLAlchemy is the Python equ
 - Past analyses are tied to their account
 - History is retrievable via a `/history` endpoint
 
+### Status: ⏳ Pending
+
 ---
 
-## Phase 8 — Minimal Frontend (2–4 days)
+## Phase 8 — Minimal Frontend
 
 ### Goal
 
@@ -334,9 +350,11 @@ View results. Nothing more.
 - A non-technical person could use this without explanation
 - History is visible and navigable
 
+### Status: ⏳ Pending
+
 ---
 
-## Phase 9 — Deployment (2–3 days)
+## Phase 9 — Deployment
 
 ### Goal
 
@@ -344,10 +362,10 @@ Get a public URL. A project that only runs locally is significantly weaker as a 
 
 ### Tasks
 
-- Deploy FastAPI backend to **Railway** or **Render** (both have free tiers, both support Python natively)
-- Deploy frontend to **Vercel** (you likely already know this from your existing apps)
+- Deploy FastAPI backend to **Railway** or **Render**
+- Deploy frontend to **Vercel**
 - Connect Neon — your connection string works as-is in both platforms
-- Set environment variables (Finnhub API key, auth keys, etc.)
+- Set environment variables
 - Smoke test the full pipeline on the deployed version
 
 ### Exit Criteria
@@ -356,13 +374,15 @@ Get a public URL. A project that only runs locally is significantly weaker as a 
 - Full pipeline runs end-to-end on the deployed version
 - URL goes in your README and portfolio
 
+### Status: ⏳ Pending
+
 ---
 
-## Phase 10 — Evaluation Layer (2–3 days) ⭐ High Value
+## Phase 10 — Evaluation Layer ⭐ High Value
 
 ### Goal
 
-Prove your system produces meaningfully better output than a naive approach. This is what separates a real project from a demo.
+Prove your system produces meaningfully better output than a naive approach.
 
 ### Tasks
 
@@ -386,51 +406,27 @@ Pick 5 tickers. For each, run both your system and the baseline. Score both on t
 
 **3. Add a consistency test**
 
-Run your system twice on the same ticker without changing anything. Compare outputs.
+Run your system twice on the same ticker. Compare `thesis_strength` scores, `key_risks` lists, and `final_summary`. Document any meaningful divergence — this signals you understand LLM non-determinism.
 
-- Are the `thesis_strength` scores materially different?
-- Do the `key_risks` lists diverge significantly?
-- Does the `final_summary` contradict itself?
-
-If yes → that's a known weakness, document it explicitly. This is actually a strong signal in interviews because it shows you understand LLM non-determinism. Most candidates don't think to test for this at all.
-
-You can reduce inconsistency by setting `temperature=0` on your judge agent, but don't paper over it — measure it first.
-
-**4. Document the results honestly**
-
-If your system scores higher on 4/5 dimensions → that's your claim.
-If it scores lower on any dimension → that's a known limitation, and knowing your limitations is itself impressive.
-
-**4. Include this in your README**
-
-A README that says "my system outperforms a naive baseline on risk awareness and consistency, here's the methodology" is what gets you taken seriously.
+**4. Document results honestly in the README**
 
 ### Exit Criteria
 
 - You can say with evidence: "My system produces more structured and risk-aware outputs than a single-prompt baseline"
 - Results are documented in the README
 
+### Status: ⏳ Pending
+
 ---
 
-## Phase 11 — Polish (2–3 days)
+## Phase 11 — Polish
 
 - Tighten prompts based on real outputs you've seen
 - Improve schemas where agents are still producing vague outputs
 - Edge case handling: tickers with no news, very small companies, delisted stocks
 - README: architecture diagram, tech stack, eval results, public URL
 
----
-
-## Timeline (realistic)
-
-| Phases                               | Duration |
-| ------------------------------------ | -------- |
-| 1–3: Foundations, MCP, data pipeline | 5–7 days |
-| 4–5: Panel agents + judge            | 6–9 days |
-| 6–8: Orchestration, auth, frontend   | 6–8 days |
-| 9–11: Deploy, eval, polish           | 5–7 days |
-
-**Total: ~3.5 weeks of focused work**
+### Status: ⏳ Pending
 
 ---
 
@@ -442,16 +438,13 @@ Fix: tighten schemas, force each agent to reference specific figures from the re
 **2. Competitive agent is too vague**
 Fix: scope it explicitly to news-based evidence + known sector positioning. Don't promise what the data can't support.
 
-**3. MCP integration slows Phase 1**
-Fix: get MCP servers working with a single tool call each before wiring them into agents. Verify the tools work in isolation first.
-
-**4. You stall on frontend**
+**3. You stall on frontend**
 Fix: have AI generate the entire UI. Your value is in the backend.
 
-**5. Auth becomes a rabbit hole**
+**4. Auth becomes a rabbit hole**
 Fix: Clerk or Supabase Auth only. One afternoon maximum.
 
-**6. You skip deployment**
+**5. You skip deployment**
 Fix: it's not optional. A private repo with no public URL is not a portfolio piece.
 
 ---
@@ -467,15 +460,3 @@ If you finish this, you will have:
 - Per-user persistence with auth
 
 If you half-build it, it becomes another AI project with no depth.
-
----
-
-## Next Step
-
-Start Phase 1 today. Not planning. Not tweaking architecture.
-
-Just:
-
-1. FastAPI route
-2. yfinance MCP server returning data for one ticker
-3. Print it cleanly

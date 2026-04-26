@@ -1,0 +1,12 @@
+version = 1
+
+[[analyzers]]
+name = "javascript"
+
+  [analyzers.meta]
+  plugins = ["react"]
+
+exclude_patterns = [
+  "src/components/ui/**",
+  "src/routeTree.gen.ts",
+]

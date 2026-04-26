@@ -7,6 +7,7 @@ name = "javascript"
   plugins = ["react"]
 
 exclude_patterns = [
-  "src/components/ui/**",
-  "src/routeTree.gen.ts",
+  "frontend/src/components/ui/**",
+  "frontend/src/hooks/use-mobile.ts",
+  "frontend/src/routeTree.gen.ts",
 ]

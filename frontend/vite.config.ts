@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
@@ -12,7 +13,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": "/src",
+      "@": fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
 })

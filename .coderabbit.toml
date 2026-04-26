@@ -1,0 +1,5 @@
+reviews:
+  path_filters:
+    - "!frontend/src/components/ui/**"
+    - "!frontend/src/routeTree.gen.ts"
+    - "!frontend/src/hooks/use-mobile.ts"

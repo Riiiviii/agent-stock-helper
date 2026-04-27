@@ -4,8 +4,9 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 export const Route = createRootRoute({
   component: () => (
     <>
-      {/* TODO: replace placeholder landmarks with real navigation/footer */}
-      <Navbar />
+      <div className="absolute top-0 left-0 right-0 z-50">
+        <Navbar />
+      </div>
       <Outlet />
       <footer />
     </>

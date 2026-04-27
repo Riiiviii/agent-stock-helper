@@ -19,9 +19,11 @@ const buttonVariants = cva(
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
         navbar:
-          "bg-transparent text-white font-light hover:opacity-60 transition-opacity duration-200 text-xs",
+          "bg-transparent text-white font-[Josefin_Sans] font-light hover:opacity-60 transition-opacity duration-200 text-xs uppercase tracking-widest",
         signup:
-          "bg-transparent text-white border border-white hover:bg-white/10 hover:text-white text-xs hover:border-white transition-colors duration-200 rounded-full",
+          "font-[Josefin_Sans] font-light text-xs uppercase tracking-widest bg-(--green-hero) hover:bg-transparent text-white border-(--green-hero) transition-colors duration-200 rounded-none",
+        "hero-outline":
+          "font-[Josefin_Sans] font-light text-xs uppercase tracking-widest bg-transparent border-white/40 hover:bg-white/10 text-white transition-colors duration-200 rounded-none",
         logo: "font-serif font-semibold text-2xl bg-transparent text-white",
       },
       size: {

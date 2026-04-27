@@ -21,7 +21,7 @@ const buttonVariants = cva(
         navbar:
           "bg-transparent text-white font-light hover:opacity-60 transition-opacity duration-200 text-xs",
         signup:
-          "bg-transparent text-green-300 border border-white hover:bg-white/10 text-xs transition-colors duration-200 rounded-none",
+          "text-xs bg-(--green-hero) hover:bg-transparent text-white border-(--green-hero) transition-colors duration-200 rounded-none",
         logo: "font-serif font-semibold text-2xl bg-transparent text-white",
       },
       size: {

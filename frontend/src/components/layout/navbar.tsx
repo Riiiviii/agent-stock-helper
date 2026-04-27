@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import NavbarLink from "./navbar-link";
 import { Button } from "../ui/button";
+import NavbarLink from "./navbar-link";
 
 export default function Navbar() {
   return (
@@ -11,12 +11,12 @@ export default function Navbar() {
         </Button>
       </div>
       <div className="flex items-center">
-        <NavbarLink href="/" label="Home" />
-        <NavbarLink href="/" label="About" />
-        <NavbarLink href="/" label="Pricing" />
-        <NavbarLink href="/" label="Contact" />
+        <NavbarLink href="/" label="Home" variant="navbar" />
+        <NavbarLink href="/" label="About" variant="navbar" />
+        <NavbarLink href="/" label="Pricing" variant="navbar" />
+        <NavbarLink href="/" label="Contact" variant="navbar" />
         <div className="w-px h-4 bg-border mx-2" />
-        <NavbarLink href="/" label="Log in" />
+        <NavbarLink href="/" label="Log in" variant="navbar" />
         <NavbarLink href="/" label="Sign up" variant="signup" />
       </div>
     </nav>

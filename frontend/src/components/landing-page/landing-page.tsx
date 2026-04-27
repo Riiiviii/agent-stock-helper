@@ -1,13 +1,15 @@
+import AgentsSummary from "./agents-summary";
 import Hero from "./hero";
-import AgentSummary from "./report-summary";
+import ReportSummary from "./report-summary";
 import WorkingSummary from "./working-summary";
 
 export default function LandingPage() {
   return (
-    <div>
+    <main>
       <Hero />
       <WorkingSummary />
-      <AgentSummary />
-    </div>
+      <AgentsSummary />
+      <ReportSummary />
+    </main>
   );
 }

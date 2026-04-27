@@ -20,9 +20,14 @@ export default function Navbar() {
           <NavbarLink href="/about" label="About" variant="navbar" />
           <NavbarLink href="/pricing" label="Pricing" variant="navbar" />
           <NavbarLink href="/contact" label="Contact" variant="navbar" />
-          <div className="w-[0.5px] h-1 bg-gray-400 mx-2" />
+          <div aria-hidden="true" className="w-px h-4 bg-border/60 mx-2" />
           <NavbarLink href="/login" label="Log in" variant="navbar" />
-          <NavbarLink href="/signup" label="Sign up" variant="signup" className="px-3 py-1" />
+          <NavbarLink
+            href="/signup"
+            label="Sign up"
+            variant="signup"
+            className="px-3 py-1"
+          />
         </div>
       </div>
     </nav>

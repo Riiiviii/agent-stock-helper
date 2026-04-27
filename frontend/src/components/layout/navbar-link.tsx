@@ -1,6 +1,7 @@
 import { Link, type LinkProps } from "@tanstack/react-router";
 import { Button, buttonVariants } from "../ui/button";
 import { type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 interface NavbarLinkProp {
   href: LinkProps["to"];
@@ -19,7 +20,7 @@ export default function NavbarLink({
 }: NavbarLinkProp) {
   return (
     <Button
-      className={`ml-1 mr-1 ${className ?? ""}`}
+      className={cn("ml-1 mr-1", className)}
       variant={variant}
       render={<Link to={href} activeOptions={{ exact }} />}
     >

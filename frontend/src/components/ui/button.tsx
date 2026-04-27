@@ -22,6 +22,8 @@ const buttonVariants = cva(
           "bg-transparent text-white font-[Josefin_Sans] font-light hover:opacity-60 transition-opacity duration-200 text-xs uppercase tracking-widest",
         signup:
           "font-[Josefin_Sans] font-light text-xs uppercase tracking-widest bg-(--green-hero) hover:bg-transparent text-white border-(--green-hero) transition-colors duration-200 rounded-none",
+        "hero-outline":
+          "font-[Josefin_Sans] font-light text-xs uppercase tracking-widest bg-transparent border-white/40 hover:bg-white/10 text-white transition-colors duration-200 rounded-none",
         logo: "font-serif font-semibold text-2xl bg-transparent text-white",
       },
       size: {

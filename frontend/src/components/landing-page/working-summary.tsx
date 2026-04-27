@@ -1,10 +1,10 @@
-interface WorkingsStep {
+interface WorkingStep {
   step: number;
   title: string;
   description: string;
 }
 
-const WorkingSteps: WorkingsStep[] = [
+const WorkingSteps: WorkingStep[] = [
   {
     step: 1,
     title: "Enter a ticker",
@@ -44,18 +44,18 @@ export default function WorkingSummary() {
           </h2>
         </div>
 
-        <div className="flex">
+        <div className="flex flex-col md:flex-row gap-10 md:gap-0">
           {WorkingSteps.map((step, index) => (
             <div
               key={step.step}
-              className="flex-1 flex flex-col items-center text-center gap-5"
+              className="w-full md:flex-1 flex flex-col items-center text-center gap-5"
             >
               <div className="relative w-full h-10 flex items-center justify-center">
                 {index > 0 && (
-                  <div className="absolute right-1/2 left-0 top-1/2 h-0.5 bg-(--border2)" />
+                  <div className="hidden md:block absolute right-1/2 left-0 top-1/2 h-0.5 bg-(--border2)" />
                 )}
                 {index < WorkingSteps.length - 1 && (
-                  <div className="absolute left-1/2 right-0 top-1/2 h-0.5 bg-(--border2)" />
+                  <div className="hidden md:block absolute left-1/2 right-0 top-1/2 h-0.5 bg-(--border2)" />
                 )}
                 <div className="relative z-10 w-10 h-10 rounded-full border-2 border-(--border2) bg-white flex items-center justify-center">
                   <span className="font-mono text-sm font-bold text-(--green)">

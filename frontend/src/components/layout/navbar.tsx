@@ -22,7 +22,7 @@ export default function Navbar() {
           <NavbarLink href="/contact" label="Contact" variant="navbar" />
           <div className="w-[0.5px] h-1 bg-gray-400 mx-2" />
           <NavbarLink href="/login" label="Log in" variant="navbar" />
-          <NavbarLink href="/signup" label="Sign up" variant="signup" />
+          <NavbarLink href="/signup" label="Sign up" variant="signup" className="px-3 py-1" />
         </div>
       </div>
     </nav>

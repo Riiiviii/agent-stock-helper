@@ -31,7 +31,7 @@ const WorkingSteps: WorkingsStep[] = [
   },
 ];
 
-export default function Workings() {
+export default function WorkingSummary() {
   return (
     <section className="py-15 bg-white">
       <div className="mx-auto max-w-5xl px-6">

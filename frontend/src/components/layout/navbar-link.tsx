@@ -7,6 +7,7 @@ interface NavbarLinkProp {
   label: string;
   exact?: boolean;
   variant?: VariantProps<typeof buttonVariants>["variant"];
+  className?: string;
 }
 
 export default function NavbarLink({
@@ -14,10 +15,11 @@ export default function NavbarLink({
   label,
   exact = false,
   variant = "default",
+  className,
 }: NavbarLinkProp) {
   return (
     <Button
-      className="ml-1 mr-1"
+      className={`ml-1 mr-1 ${className ?? ""}`}
       variant={variant}
       render={<Link to={href} activeOptions={{ exact }} />}
     >

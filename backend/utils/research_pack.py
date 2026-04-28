@@ -2,6 +2,10 @@ from .types import DeducedMCP, ResearchPack, News
 
 
 def build_research_pack(data: DeducedMCP) -> ResearchPack:
+    """
+    Transforms validated MCP data into a structured research pack
+    consumed by all downstream panel agents.
+    """
     company_summary = get_company_summary(data["clean_data"]["company_information"])
     company_snapshot = get_company_snapshot(data["clean_data"]["company_information"])
     financial_snapshot = get_financial_snapshot(data["clean_data"]["financials"])
@@ -20,10 +24,12 @@ def build_research_pack(data: DeducedMCP) -> ResearchPack:
 
 
 def get_company_summary(company_info: dict) -> str:
+    """Returns the long business summary string from company information."""
     return company_info.get("longBusinessSummary", "")
 
 
 def get_company_snapshot(company_info: dict) -> dict:
+    """Extracts key valuation and market metrics from company information."""
     keys = [
         "symbol",
         "shortName",
@@ -47,6 +53,10 @@ def get_company_snapshot(company_info: dict) -> dict:
 
 
 def get_financial_snapshot(company_financials: dict) -> dict:
+    """
+    Extracts key income statement metrics per fiscal year, sorted newest first.
+    Years with no usable data are excluded.
+    """
     keys = [
         "Total Revenue",
         "Gross Profit",
@@ -78,6 +88,10 @@ def get_financial_snapshot(company_financials: dict) -> dict:
 
 
 def get_price_movement(company_price_movement: dict) -> dict:
+    """
+    Derives price movement signals from raw price history.
+    Uses Close prices only. Percentage changes are relative to current price.
+    """
     close_prices = company_price_movement["Close"]
     sorted_data = sorted(close_prices, reverse=True)
     current_price = close_prices[sorted_data[0]]
@@ -108,6 +122,7 @@ def get_price_movement(company_price_movement: dict) -> dict:
 
 
 def get_recent_news(company_news: list[News]) -> list:
+    """Returns the 15 most recent news articles sorted by datetime descending."""
     sorted_news = sorted(
         company_news, key=lambda article: article["datetime"], reverse=True
     )

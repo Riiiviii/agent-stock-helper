@@ -80,7 +80,33 @@ def generate_financial_snapshot(company_financials: dict) -> dict:
 
 
 def generate_price_movement(company_price_movement: dict) -> dict:
-    return {}
+    close_prices = company_price_movement["Close"]
+    sorted_data = sorted(close_prices, reverse=True)
+    current_price = close_prices[sorted_data[0]]
+    price_30d_ago = close_prices[sorted_data[30]] if len(sorted_data) > 30 else None
+    price_90d_ago = close_prices[sorted_data[90]] if len(sorted_data) > 90 else None
+    change_30d_pct = (
+        ((current_price - price_30d_ago) / price_30d_ago) * 100
+        if price_30d_ago
+        else None
+    )
+    change_90d_pct = (
+        ((current_price - price_90d_ago) / price_90d_ago) * 100
+        if price_90d_ago
+        else None
+    )
+    year_high = max(close_prices.values())
+    year_low = min(close_prices.values())
+
+    return {
+        "current_price": current_price,
+        "price_30d_ago": price_30d_ago,
+        "price_90d_ago": price_90d_ago,
+        "change_30d_pct": change_30d_pct,
+        "change_90d_pct": change_90d_pct,
+        "year_high": year_high,
+        "year_low": year_low,
+    }
 
 
 def refine_recent_news(company_news: list) -> list:

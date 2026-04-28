@@ -1,4 +1,4 @@
-from .types import DeducedMCP, ResearchPack
+from .types import DeducedMCP, ResearchPack, News
 
 
 def build_research_pack(data: DeducedMCP) -> ResearchPack:
@@ -109,5 +109,8 @@ def generate_price_movement(company_price_movement: dict) -> dict:
     }
 
 
-def refine_recent_news(company_news: list) -> list:
-    return []
+def refine_recent_news(company_news: list[News]) -> list:
+    sorted_news = sorted(
+        company_news, key=lambda article: article["datetime"], reverse=True
+    )
+    return sorted_news[:15]

@@ -1,31 +1,13 @@
-from typing import TypedDict
-from datetime import datetime, timedelta
 from typing import Final
+from datetime import datetime, timedelta
+from .types import MCPData, News
+
 
 NEWS_COUNT_DEDUCTION: Final = -10
 NEWS_RECENCY_DEDUCTION: Final = -8
 MISSING_FINANCIALS_DEDUCTION: Final = -20
 PRICE_HISTORY_DEDUCTION: Final = -15
 MISSING_COMPANY_FIELDS_DEDUCTION: Final = -15
-
-
-class MCPData(TypedDict):
-    company_information: dict
-    news: list
-    financials: dict
-    price_history: dict
-
-
-class News(TypedDict):
-    category: str
-    datetime: int
-    headline: str
-    id: int
-    image: str
-    related: str
-    source: str
-    summary: str
-    url: str
 
 
 def calculate_confidence_score(mcp_data: MCPData) -> dict:

@@ -2,20 +2,18 @@ from .types import DeducedMCP, ResearchPack, News
 
 
 def build_research_pack(data: DeducedMCP) -> ResearchPack:
-    company_summary: str = get_company_summary(
-        data["clean_data"]["company_information"]
-    )
-
-    company_snapshot: dict = get_company_snapshot(
-        data["clean_data"]["company_information"]
-    )
+    company_summary = get_company_summary(data["clean_data"]["company_information"])
+    company_snapshot = get_company_snapshot(data["clean_data"]["company_information"])
+    financial_snapshot = get_financial_snapshot(data["clean_data"]["financials"])
+    price_movement = get_price_movement(data["clean_data"]["price_history"])
+    recent_news = get_recent_news(data["clean_data"]["news"])
 
     return {
         "company_summary": company_summary,
         "company_snapshot": company_snapshot,
-        "financial_snapshot": {},
-        "price_movement": {},
-        "recent_news": [],
+        "financial_snapshot": financial_snapshot,
+        "price_movement": price_movement,
+        "recent_news": recent_news,
         "data_confidence": data["confidence_score"]["score"],
         "flags": data["issues"],
     }
@@ -48,7 +46,7 @@ def get_company_snapshot(company_info: dict) -> dict:
     return {k: company_info.get(k) for k in keys}
 
 
-def generate_financial_snapshot(company_financials: dict) -> dict:
+def get_financial_snapshot(company_financials: dict) -> dict:
     keys = [
         "Total Revenue",
         "Gross Profit",
@@ -79,7 +77,7 @@ def generate_financial_snapshot(company_financials: dict) -> dict:
     return snapshot
 
 
-def generate_price_movement(company_price_movement: dict) -> dict:
+def get_price_movement(company_price_movement: dict) -> dict:
     close_prices = company_price_movement["Close"]
     sorted_data = sorted(close_prices, reverse=True)
     current_price = close_prices[sorted_data[0]]
@@ -109,7 +107,7 @@ def generate_price_movement(company_price_movement: dict) -> dict:
     }
 
 
-def refine_recent_news(company_news: list[News]) -> list:
+def get_recent_news(company_news: list[News]) -> list:
     sorted_news = sorted(
         company_news, key=lambda article: article["datetime"], reverse=True
     )

@@ -47,3 +47,14 @@ def test_get_company_snapshot_missing_fields(invalid_company_info):
     result: CompanySnapshot = get_company_snapshot(invalid_company_info)
     for v in result.values():
         assert v is None
+
+
+# ── Research Pack Company Financial Testing ────────────────────────────────────
+
+
+def test_get_financial_snapshot_valid(valid_company_financials):
+    assert get_financial_snapshot(valid_company_financials) != {}
+
+
+def test_get_financial_snapshot_empty(empty_company_financials):
+    assert get_financial_snapshot(empty_company_financials) == {}

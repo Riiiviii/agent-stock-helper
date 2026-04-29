@@ -1,4 +1,17 @@
-from .types import DeducedMCP, ResearchPack, News
+from datetime import datetime, timedelta
+from typing import cast
+
+from .types import (
+    CompanyInformation,
+    CompanySnapshot,
+    DeducedMCP,
+    Financials,
+    FinancialSnapshot,
+    News,
+    PriceHistory,
+    PriceMovement,
+    ResearchPack,
+)
 
 
 def build_research_pack(data: DeducedMCP) -> ResearchPack:
@@ -23,12 +36,12 @@ def build_research_pack(data: DeducedMCP) -> ResearchPack:
     }
 
 
-def get_company_summary(company_info: dict) -> str:
+def get_company_summary(company_info: CompanyInformation) -> str:
     """Returns the long business summary string from company information."""
     return company_info.get("longBusinessSummary", "")
 
 
-def get_company_snapshot(company_info: dict) -> dict:
+def get_company_snapshot(company_info: CompanyInformation) -> CompanySnapshot:
     """Extracts key valuation and market metrics from company information."""
     keys = [
         "symbol",
@@ -49,10 +62,10 @@ def get_company_snapshot(company_info: dict) -> dict:
         "industry",
         "marketCap",
     ]
-    return {k: company_info.get(k) for k in keys}
+    return cast(CompanySnapshot, {k: company_info.get(k) for k in keys})
 
 
-def get_financial_snapshot(company_financials: dict) -> dict:
+def get_financial_snapshot(company_financials: Financials) -> FinancialSnapshot:
     """
     Extracts key income statement metrics per fiscal year, sorted newest first.
     Years with no usable data are excluded.
@@ -87,28 +100,57 @@ def get_financial_snapshot(company_financials: dict) -> dict:
     return snapshot
 
 
-def get_price_movement(company_price_movement: dict) -> dict:
+def get_price_movement(company_price_movement: PriceHistory) -> PriceMovement:
     """
     Derives price movement signals from raw price history.
-    Uses Close prices only. Percentage changes are relative to current price.
+    Uses Close prices only. Percentage changes are relative to the past price.
     """
-    close_prices = company_price_movement["Close"]
-    sorted_data = sorted(close_prices, reverse=True)
-    current_price = close_prices[sorted_data[0]]
-    price_30d_ago = close_prices[sorted_data[30]] if len(sorted_data) > 30 else None
-    price_90d_ago = close_prices[sorted_data[90]] if len(sorted_data) > 90 else None
+    close_prices = company_price_movement.get("Close", {})
+    if not close_prices:
+        return {
+            "current_price": None,
+            "price_30d_ago": None,
+            "price_90d_ago": None,
+            "change_30d_pct": None,
+            "change_90d_pct": None,
+            "year_high": None,
+            "year_low": None,
+        }
+
+    parsed_dates = {k: datetime.fromisoformat(k) for k in close_prices}
+    latest_key = max(parsed_dates, key=parsed_dates.__getitem__)
+    latest_date = parsed_dates[latest_key]
+    current_price = close_prices[latest_key]
+
+    def _nearest_prior_price(target_date) -> float | None:
+        candidates = [k for k, d in parsed_dates.items() if d <= target_date]
+        if not candidates:
+            return None
+        best_key = max(candidates, key=parsed_dates.__getitem__)
+        return close_prices[best_key]
+
+    price_30d_ago = _nearest_prior_price(latest_date - timedelta(days=30))
+    price_90d_ago = _nearest_prior_price(latest_date - timedelta(days=90))
+
     change_30d_pct = (
         ((current_price - price_30d_ago) / price_30d_ago) * 100
-        if price_30d_ago
+        if current_price is not None and price_30d_ago is not None
         else None
     )
     change_90d_pct = (
         ((current_price - price_90d_ago) / price_90d_ago) * 100
-        if price_90d_ago
+        if current_price is not None and price_90d_ago is not None
         else None
     )
-    year_high = max(close_prices.values())
-    year_low = min(close_prices.values())
+
+    cutoff_365d = latest_date - timedelta(days=365)
+    year_prices = [
+        v
+        for k, v in close_prices.items()
+        if parsed_dates[k] >= cutoff_365d and v is not None
+    ]
+    year_high = max(year_prices) if year_prices else None
+    year_low = min(year_prices) if year_prices else None
 
     return {
         "current_price": current_price,

@@ -1,7 +1,7 @@
 import pytest
 
 
-# ── Research Pack Data Fixture ────────────────────────────────────────
+# ── Research Pack Data Fixtures ────────────────────────────────────────
 
 
 @pytest.fixture
@@ -43,3 +43,11 @@ def invalid_company_info():
         "industry": None,
         "marketCap": None,
     }
+
+
+# ── Research Pack Financial Snapshot Fixtures ────────────────────────────────────────
+
+
+@pytest.fixture
+def empty_company_financials():
+    return {}

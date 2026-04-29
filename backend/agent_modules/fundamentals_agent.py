@@ -4,6 +4,7 @@ from typing import Final
 from pathlib import Path
 from agents import Agent, Runner, trace
 from dotenv import load_dotenv
+import sys
 import json
 
 load_dotenv(override=True)
@@ -14,7 +15,8 @@ INSTRUCTION: Final[str] = (
 ).read_text()
 
 server_params = MCPServerStdioParams(
-    command="python", args=["mcp-servers/yfinance-mcp.py"]
+    command=sys.executable,
+    args=[str(Path(__file__).resolve().parents[1] / "mcp-servers" / "yfinance-mcp.py")],
 )
 
 

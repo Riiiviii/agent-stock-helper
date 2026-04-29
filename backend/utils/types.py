@@ -176,7 +176,7 @@ class SentimentLabel(str, Enum):
     mixed = "mixed"
 
 
-class SentimentOutput(TypedDict, total=False):
+class SentimentOutput(TypedDict):
     general_sentiment: SentimentLabel
     summary: str
     notable_events: list[News]

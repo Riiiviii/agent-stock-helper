@@ -36,7 +36,17 @@ async def run_sentiment_agent(research_pack: ResearchPack) -> SentimentOutput:
         with trace("Sentiment Agent"):
             try:
                 result = await Runner.run(sentiment_agent, data)
-                return json.loads(result.final_output)
+                parsed = json.loads(result.final_output)
+                required_keys = {
+                    "general_sentiment",
+                    "summary",
+                    "notable_events",
+                    "strength",
+                }
+                missing = required_keys - set(parsed.keys())
+                if missing:
+                    raise ValueError(f"Missing sentiment fields: {sorted(missing)}")
+                return parsed
 
             except Exception as e:
                 raise RuntimeError(f"Sentiment agent failed: {str(e)}") from e

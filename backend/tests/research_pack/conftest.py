@@ -51,3 +51,21 @@ def invalid_company_info():
 @pytest.fixture
 def empty_company_financials():
     return {}
+
+
+# ── Research Pack Price History Fixtures ────────────────────────────────────────
+
+
+@pytest.fixture
+def empty_company_price_history():
+    return {}
+
+
+@pytest.fixture
+def insufficient_price_history():
+    return {
+        "Close": {
+            "2026-04-01T00:00:00-04:00": 270.0,
+            "2026-04-23T00:00:00-04:00": 273.0,
+        }
+    }

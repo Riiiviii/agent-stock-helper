@@ -11,9 +11,35 @@ def valid_deduced_mcp(valid_mcp_data):
     return calculate_confidence_score(valid_mcp_data)
 
 
-# ── Research Pack Data Fixture ────────────────────────────────────────
+# ── Research Pack Company Info Fixtures ────────────────────────────────────────
 
 
 @pytest.fixture
 def empty_company_info():
     return {}
+
+
+# ── Research Pack Company Snapshot Fixtures ────────────────────────────────────────
+
+
+@pytest.fixture
+def invalid_company_info():
+    return {
+        "symbol": None,
+        "shortName": None,
+        "recommendationKey": None,
+        "recommendationMean": None,
+        "numberOfAnalystOpinions": None,
+        "currentPrice": None,
+        "fiftyTwoWeekLow": None,
+        "fiftyTwoWeekHigh": None,
+        "trailingPE": None,
+        "forwardPE": None,
+        "profitMargins": None,
+        "revenueGrowth": None,
+        "earningsGrowth": None,
+        "beta": None,
+        "sector": None,
+        "industry": None,
+        "marketCap": None,
+    }

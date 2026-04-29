@@ -80,3 +80,16 @@ def test_get_price_movement_insufficient(insufficient_price_history):
     assert result["price_90d_ago"] is None
     assert result["change_30d_pct"] is None
     assert result["change_90d_pct"] is None
+
+
+# ── Research Pack News Testing ────────────────────────────────────
+
+
+def test_get_recent_news_valid(valid_company_news):
+    result = get_recent_news(valid_company_news)
+    assert len(result) == 15
+
+
+def test_get_recent_news_insufficient(less_than_15_news):
+    result = get_recent_news(less_than_15_news)
+    assert len(result) == 1

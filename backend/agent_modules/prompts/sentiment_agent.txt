@@ -59,9 +59,9 @@ Output format:
   "notable_events": [
     {
       "category": "string",
-      "datetime": "number",
+      "datetime": number,
       "headline": "string",
-      "id": "number",
+      "id": number,
       "image": "string",
       "related": "string",
       "source": "string",
@@ -69,5 +69,5 @@ Output format:
       "url": "string"
     }
   ],
-  "strength": "number"
+  "strength": number
 }

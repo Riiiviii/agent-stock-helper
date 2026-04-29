@@ -34,9 +34,25 @@ async def run_fundamentals_agent(research_pack: ResearchPack) -> FundamentalsOut
         )
 
         with trace("Fundamental Agent"):
-            try:
-                result = await Runner.run(fundamentals_agent, data)
-                return json.loads(result.final_output)
+            result = await Runner.run(fundamentals_agent, data)
 
-            except Exception as e:
-                raise RuntimeError(f"Fundamentals agent failed: {str(e)}") from e
+            try:
+                parsed = json.loads(result.final_output)
+            except json.JSONDecodeError as e:
+                raise RuntimeError(
+                    f"Fundamentals agent returned invalid JSON: {str(e)}"
+                ) from e
+
+            required_keys = {
+                "revenue_trends",
+                "profitability",
+                "valuation_signals",
+                "analyst_consensus",
+                "summary",
+                "strength",
+            }
+            missing = required_keys - set(parsed.keys())
+            if missing:
+                raise ValueError(f"Missing fundamentals fields: {sorted(missing)}")
+
+            return parsed

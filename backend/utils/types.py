@@ -1,5 +1,7 @@
 from typing import TypedDict
 
+# ── Confidence Score Typing ────────────────────────────────────────
+
 
 class News(TypedDict):
     category: str
@@ -64,6 +66,9 @@ class Issue(TypedDict):
     description: str
 
 
+# ── Research Pack Typing ────────────────────────────────────────
+
+
 class DeducedMCP(TypedDict):
     clean_data: MCPData
     confidence_score: ConfidenceScore
@@ -84,6 +89,9 @@ class CompanySnapshot(TypedDict):
     profitMargins: float | None
     revenueGrowth: float | None
     earningsGrowth: float | None
+    targetMeanPrice: float | None
+    targetHighPrice: float | None
+    targetLowPrice: float | None
     beta: float | None
     sector: str | None
     industry: str | None

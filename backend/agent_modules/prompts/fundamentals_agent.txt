@@ -11,6 +11,8 @@ You will receive a ResearchPack object containing:
 
 Your task is to perform a disciplined fundamental analysis strictly grounded in this data.
 
+Before analysing, call get_analyst_recommendations to retrieve the latest analyst recommendation trends across recent periods.
+
 Analysis Guidelines:
 
 1. Revenue Trends:

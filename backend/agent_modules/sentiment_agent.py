@@ -1,4 +1,4 @@
-from utils.types import ResearchPack, FundamentalsOutput
+from utils.types import ResearchPack, SentimentOutput
 from agents.mcp import MCPServerStdio, MCPServerStdioParams
 from typing import Final
 from pathlib import Path
@@ -11,48 +11,46 @@ load_dotenv(override=True)
 
 MODEL: Final = "gpt-4o-mini"
 INSTRUCTION: Final[str] = (
-    Path(__file__).parent / "prompts" / "fundamentals_agent.txt"
+    Path(__file__).parent / "prompts" / "sentiment_agent.txt"
 ).read_text()
 
 server_params = MCPServerStdioParams(
     command=sys.executable,
-    args=[str(Path(__file__).resolve().parents[1] / "mcp-servers" / "yfinance-mcp.py")],
+    args=[str(Path(__file__).resolve().parents[1] / "mcp-servers" / "finnhub-mcp.py")],
 )
 
 
-async def run_fundamentals_agent(research_pack: ResearchPack) -> FundamentalsOutput:
+async def run_sentiment_agent(research_pack: ResearchPack) -> SentimentOutput:
     async with MCPServerStdio(
         params=server_params, client_session_timeout_seconds=60
     ) as server:
         data = json.dumps(research_pack)
 
-        fundamentals_agent = Agent(
-            name="fundamentals-analysis-agent",
+        sentiment_agent = Agent(
+            name="sentiment-analysis-agent",
             instructions=INSTRUCTION,
             model=MODEL,
             mcp_servers=[server],
         )
 
-        with trace("Fundamental Agent"):
-            result = await Runner.run(fundamentals_agent, data)
+        with trace("Sentiment Agent"):
+            result = await Runner.run(sentiment_agent, data)
 
             try:
                 parsed = json.loads(result.final_output)
             except json.JSONDecodeError as e:
                 raise RuntimeError(
-                    f"Fundamentals agent returned invalid JSON: {str(e)}"
+                    f"Sentiment agent returned invalid JSON: {str(e)}"
                 ) from e
 
             required_keys = {
-                "revenue_trends",
-                "profitability",
-                "valuation_signals",
-                "analyst_consensus",
+                "general_sentiment",
                 "summary",
+                "notable_events",
                 "strength",
             }
             missing = required_keys - set(parsed.keys())
             if missing:
-                raise ValueError(f"Missing fundamentals fields: {sorted(missing)}")
+                raise ValueError(f"Missing sentiment fields: {sorted(missing)}")
 
             return parsed

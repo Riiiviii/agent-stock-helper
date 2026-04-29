@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import TypedDict
 
 # ── Confidence Score Typing ────────────────────────────────────────
@@ -162,4 +163,21 @@ class FundamentalsOutput(TypedDict, total=False):
     valuation_signals: ValuationSignals
     analyst_consensus: AnalystConsensus
     summary: str
+    strength: int
+
+
+# ── Sentiment Agent Typing ────────────────────────────────────────
+
+
+class SentimentLabel(str, Enum):
+    positive = "positive"
+    neutral = "neutral"
+    negative = "negative"
+    mixed = "mixed"
+
+
+class SentimentOutput(TypedDict):
+    general_sentiment: SentimentLabel
+    summary: str
+    notable_events: list[News]
     strength: int

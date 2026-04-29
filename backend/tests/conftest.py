@@ -1,6 +1,7 @@
 import pytest
-from pathlib import Path
 import json
+from pathlib import Path
+from datetime import datetime, timezone
 
 
 FIXTURES_DIR = Path(__file__).parent / "_fixtures"
@@ -24,7 +25,11 @@ def valid_company_price_history():
 @pytest.fixture
 def valid_company_news():
     with open(FIXTURES_DIR / "company_news.json") as f:
-        return json.load(f)
+        news = json.load(f)
+    now_ts = int(datetime.now(timezone.utc).timestamp())
+    for i, article in enumerate(news):
+        article["datetime"] = now_ts - (i * 3600)
+    return news
 
 
 @pytest.fixture

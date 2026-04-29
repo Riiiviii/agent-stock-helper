@@ -85,7 +85,7 @@ def less_than_15_news():
             "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
             "related": "AAPL",
             "source": "Yahoo",
-            "summary": "Intel has such high demand from the AI market that it’s selling chips it once thought were worthless.",
+            "summary": "Intel has such high demand from the AI market that it's selling chips it once thought were worthless.",
             "url": "https://finnhub.io/api/news?id=bd6df7daebf3de12e8d192c917b484e2ad71c64144ef903c58146f3c1001c622",
         }
     ]

@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 FIXTURES_DIR = Path(__file__).parent.parent / "_fixtures"
 
@@ -56,7 +56,7 @@ def empty_news():
 def insufficient_company_news():
     return [
         {
-            "datetime": int(datetime.now().timestamp()),
+            "datetime": int(datetime.now(timezone.utc).timestamp()),
             "headline": "",
             "category": "",
             "id": 1,
@@ -67,7 +67,7 @@ def insufficient_company_news():
             "url": "",
         },
         {
-            "datetime": int(datetime.now().timestamp()),
+            "datetime": int(datetime.now(timezone.utc).timestamp()),
             "headline": "",
             "category": "",
             "id": 2,

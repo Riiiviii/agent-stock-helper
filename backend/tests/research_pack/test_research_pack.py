@@ -1,3 +1,5 @@
+from utils.types import CompanySnapshot
+
 from utils.research_pack import (
     build_research_pack,
     get_company_snapshot,
@@ -32,3 +34,16 @@ def test_get_company_summary_valid(valid_company_info):
 
 def test_get_company_summary_missing_field(empty_company_info):
     assert get_company_summary(empty_company_info) == ""
+
+
+# ── Research Pack Company Snapshot Testing ────────────────────────────────────
+
+
+def test_get_company_snapshot_valid(valid_company_info):
+    assert get_company_snapshot(valid_company_info) != {}
+
+
+def test_get_company_snapshot_missing_fields(invalid_company_info):
+    result: CompanySnapshot = get_company_snapshot(invalid_company_info)
+    for v in result.values():
+        assert v is None

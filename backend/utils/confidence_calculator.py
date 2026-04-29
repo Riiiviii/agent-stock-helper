@@ -1,6 +1,6 @@
 from typing import Final
 from datetime import datetime, timedelta
-from .types import MCPData, News
+from .types import CompanyInformation, MCPData, News
 
 
 NEWS_COUNT_DEDUCTION: Final = -10
@@ -147,7 +147,7 @@ def calculate_price_history_deduction(price_history: dict) -> int:
     return PRICE_HISTORY_DEDUCTION if days_of_data < 90 else 0
 
 
-def calculate_information_deductions(info: dict) -> tuple[int, list[str]]:
+def calculate_information_deductions(info: CompanyInformation) -> tuple[int, list[str]]:
     """
     Returns deduction and list of missing fields from sector, industry, and marketCap.
     Returns the deduction if any field is missing, along with which fields were absent.

@@ -163,5 +163,16 @@
   "source": "Yahoo",
   "summary": "The European Union plans to turn the focus of its landmark rules curbing the power of Big Tech to cloud and artificial ‌intelligence services, aiming to promote fairer competition after seeing positive results in other digital areas, ‌EU regulators said.  The EU Commission's Digital Markets Act currently targets Alphabet, Amazon, Apple, Booking.com, ByteDance, Meta Platforms and Microsoft, imposing obligations ​on so-called \"gatekeepers\" to prevent them from abusing their market dominance.  The Commission said the DMA, which became applicable in May 2023, has improved conditions for businesses and users.",
   "url": "https://finnhub.io/api/news?id=d48cc0afeea3407eb85fe3954c0705c6032008b008ad5a527c4ecbe793a6c334"
+},
+{
+  "category": "company",
+  "datetime": 1777395120,
+  "headline": "Apple's CEOs, Intel & AI, and Another SaaSpocalype",
+  "id": 139918601,
+  "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
+  "related": "AAPL",
+  "source": "Yahoo",
+  "summary": "Intel has such high demand from the AI market that it’s selling chips it once thought were worthless.",
+  "url": "https://finnhub.io/api/news?id=bd6df7daebf3de12e8d192c917b484e2ad71c64144ef903c58146f3c1001c622"
 }
 ]

@@ -1,5 +1,7 @@
 from typing import TypedDict
 
+# ── Confidence Score Typing ────────────────────────────────────────
+
 
 class News(TypedDict):
     category: str
@@ -64,6 +66,9 @@ class Issue(TypedDict):
     description: str
 
 
+# ── Research Pack Typing ────────────────────────────────────────
+
+
 class DeducedMCP(TypedDict):
     clean_data: MCPData
     confidence_score: ConfidenceScore
@@ -84,6 +89,9 @@ class CompanySnapshot(TypedDict):
     profitMargins: float | None
     revenueGrowth: float | None
     earningsGrowth: float | None
+    targetMeanPrice: float | None
+    targetHighPrice: float | None
+    targetLowPrice: float | None
     beta: float | None
     sector: str | None
     industry: str | None
@@ -125,3 +133,33 @@ class ResearchPack(TypedDict):
     recent_news: list[News]
     data_confidence: int
     flags: list[Issue]
+
+
+# ── Fundamental Agent Typing ────────────────────────────────────────
+
+
+class ValuationSignals(TypedDict, total=False):
+    trailing_pe: float | None
+    forward_pe: float | None
+    profit_margins: float | None
+    earnings_growth: float | None
+    revenue_growth: float | None
+    market_cap: int | None
+
+
+class AnalystConsensus(TypedDict, total=False):
+    recommendation: str | None
+    mean_score: float | None
+    num_analyst: int | None
+    price_target_mean: float | None
+    price_target_high: float | None
+    price_target_low: float | None
+
+
+class FundamentalsOutput(TypedDict, total=False):
+    revenue_trends: str
+    profitability: str
+    valuation_signals: ValuationSignals
+    analyst_consensus: AnalystConsensus
+    summary: str
+    strength: int

@@ -11,15 +11,42 @@ finnhub_client = finnhub.Client(api_key=FINNHUB_API_KEY)
 
 
 async def run_analysis(ticker: str):
-    raw_ticker_info, raw_ticker_news = await asyncio.gather(
-        asyncio.to_thread(fetch_records, ticker),
-        asyncio.to_thread(fetch_news, ticker),
+    raw_ticker_info, raw_ticker_news, raw_financials, raw_price_history = (
+        await asyncio.gather(
+            asyncio.to_thread(fetch_records, ticker),
+            asyncio.to_thread(fetch_news, ticker),
+            asyncio.to_thread(fetch_financials, ticker),
+            asyncio.to_thread(fetch_price_history, ticker),
+        )
     )
 
     return {
-        "info": raw_ticker_info,
+        "company_information": raw_ticker_info,
         "news": raw_ticker_news,
+        "financials": raw_financials,
+        "price_history": raw_price_history,
     }
+
+
+def fetch_financials(ticker: str):
+    user_ticker = yf.Ticker(ticker)
+    raw = user_ticker.financials.to_dict()
+
+    converted = {}
+    for timestamp, values in raw.items():
+        converted[timestamp.isoformat()] = values
+    return converted
+
+
+def fetch_price_history(ticker: str):
+    user_ticker = yf.Ticker(ticker)
+    history = user_ticker.history(period="1y")
+    raw = history.to_dict()
+
+    converted = {}
+    for column, values in raw.items():
+        converted[column] = {k.isoformat(): v for k, v in values.items()}
+    return converted
 
 
 def fetch_records(ticker: str):

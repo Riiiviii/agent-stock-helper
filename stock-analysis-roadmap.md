@@ -1,16 +1,5 @@
 # Stock Analysis Agent — Build Roadmap
 
-## Ground Rules (read this or you'll drift)
-
-- You are building V1 only (no PM loop, no RAG)
-- Every phase must produce something testable before moving on
-- If something doesn't change output quality → cut it
-- Backend first. UI is just a viewer
-- No new agents after Phase 4 starts
-- MCP wraps your data sources only — not agent-to-agent communication
-
----
-
 ## Phase 1 — Foundations + MCP Setup
 
 ### Goal
@@ -151,7 +140,7 @@ Transform validated data into a single object passed to all downstream agents:
 - Single clean object that every downstream agent receives
 - No agent fetches its own data after this point
 
-### Status: 🔄 In progress
+### Status: ✅ Complete
 
 ---
 

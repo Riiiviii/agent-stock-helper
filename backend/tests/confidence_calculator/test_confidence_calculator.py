@@ -15,9 +15,9 @@ from utils.confidence_calculator import (
 )
 
 
-#######################################################################################
-#                          COMPANY CONFIDENCE SCORE TESTING                           #
-#######################################################################################
+# ── Company Confidence Score Testing ────────────────────────────────────────
+
+
 def test_calculate_confidence_score_valid_data(valid_mcp_data):
     result = calculate_confidence_score(valid_mcp_data)
 
@@ -54,9 +54,7 @@ def test_calculate_confidence_score_all_empty():
     assert len(result["issues"]) == 5
 
 
-#######################################################################################
-#                              COMPANY FINANCIAL TESTING                              #
-#######################################################################################
+# ── Company Financial Testing ────────────────────────────────────────
 
 
 def test_calculate_financial_deduction_valid(valid_company_financials):
@@ -69,9 +67,7 @@ def test_calculate_financial_deduction_invalid(empty_financials):
     )
 
 
-#######################################################################################
-#                                 COMPANY NEWS TESTING                                #
-#######################################################################################
+# ── Company News Testing ────────────────────────────────────────
 
 
 def test_calculate_news_deductions_valid(valid_company_news):
@@ -98,9 +94,7 @@ def test_calculate_news_deductions_stale(stale_company_news):
     assert calculate_news_deductions(stale_company_news) == (0, NEWS_RECENCY_DEDUCTION)
 
 
-#######################################################################################
-#                              COMPANY PRICE HISTORY TESTING                          #
-#######################################################################################
+# ── Company Price History Testing ────────────────────────────────────────
 
 
 def test_calculate_price_history_deduction_valid(valid_company_price_history):
@@ -128,9 +122,7 @@ def test_calculate_price_history_deduction_no_close(no_close_price_history):
     )
 
 
-#######################################################################################
-#                             COMPANY INFORMATION TESTING                             #
-#######################################################################################
+# ── Company Information Testing ────────────────────────────────────────
 
 
 def test_calculate_information_deductions_valid(valid_company_info):

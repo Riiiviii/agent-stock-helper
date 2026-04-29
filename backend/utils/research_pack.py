@@ -106,7 +106,8 @@ def get_price_movement(company_price_movement: PriceHistory) -> PriceMovement:
     Uses Close prices only. Percentage changes are relative to the past price.
     """
     close_prices = company_price_movement.get("Close", {})
-    if not close_prices:
+    valid_close_prices = {k: v for k, v in close_prices.items() if v is not None}
+    if not valid_close_prices:
         return {
             "current_price": None,
             "price_30d_ago": None,
@@ -117,31 +118,28 @@ def get_price_movement(company_price_movement: PriceHistory) -> PriceMovement:
             "year_low": None,
         }
 
-    parsed_dates = {k: datetime.fromisoformat(k) for k in close_prices}
+    parsed_dates = {k: datetime.fromisoformat(k) for k in valid_close_prices}
     latest_key = max(parsed_dates, key=parsed_dates.__getitem__)
     latest_date = parsed_dates[latest_key]
-    current_price = close_prices[latest_key]
+    current_price = valid_close_prices[latest_key]
 
     def _nearest_prior_price(target_date) -> float | None:
         candidates = [k for k, d in parsed_dates.items() if d <= target_date]
         if not candidates:
             return None
         best_key = max(candidates, key=parsed_dates.__getitem__)
-        return close_prices[best_key]
+        return valid_close_prices[best_key]
 
     price_30d_ago = _nearest_prior_price(latest_date - timedelta(days=30))
     price_90d_ago = _nearest_prior_price(latest_date - timedelta(days=90))
 
-    change_30d_pct = (
-        ((current_price - price_30d_ago) / price_30d_ago) * 100
-        if current_price is not None and price_30d_ago is not None
-        else None
-    )
-    change_90d_pct = (
-        ((current_price - price_90d_ago) / price_90d_ago) * 100
-        if current_price is not None and price_90d_ago is not None
-        else None
-    )
+    def _pct_change(current: float, previous: float | None) -> float | None:
+        if previous in (None, 0):
+            return None
+        return ((current - previous) / previous) * 100
+
+    change_30d_pct = _pct_change(current_price, price_30d_ago)
+    change_90d_pct = _pct_change(current_price, price_90d_ago)
 
     cutoff_365d = latest_date - timedelta(days=365)
     year_prices = [

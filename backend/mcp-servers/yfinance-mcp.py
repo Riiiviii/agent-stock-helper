@@ -101,7 +101,10 @@ def get_analyst_recommendations(ticker: str):
             return {"error": f"No analyst recommendations found for ticker: {ticker}"}
 
         raw = recommendations.to_dict(orient="records")
-        return raw
+        cleaned = []
+        for row in raw:
+            cleaned.append({k: (None if pd.isna(v) else v) for k, v in row.items()})
+        return cleaned
     except Exception as e:
         return {
             "error": f"Failed to fetch analyst recommendations for {ticker}: {str(e)}"
@@ -123,14 +126,9 @@ def get_insider_transactions(ticker: str):
             return {"error": f"No insider transactions found for ticker: {ticker}"}
 
         raw = insider.to_dict(orient="records")
-        cleaned = []
-        for row in raw:
-            cleaned.append(
-                {
-                    k: (None if isinstance(v, float) and math.isnan(v) else v)
-                    for k, v in row.items()
-                }
-            )
+        cleaned = [
+            {k: (None if pd.isna(v) else v) for k, v in row.items()} for row in raw
+        ]
         return cleaned
     except Exception as e:
         return {"error": f"Failed to fetch insider transactions for {ticker}: {str(e)}"}

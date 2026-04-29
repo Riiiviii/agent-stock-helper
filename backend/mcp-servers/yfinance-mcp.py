@@ -1,6 +1,7 @@
 import math
 import yfinance as yf
 from mcp.server.fastmcp import FastMCP
+import pandas as pd
 
 server_name: str = "yfinance-mcp"
 mcp = FastMCP(server_name)
@@ -79,6 +80,60 @@ def get_price_history(ticker: str):
         return cleaned
     except Exception as e:
         return {"error": f"Failed to fetch company history for {ticker}: {str(e)}"}
+
+
+@mcp.tool()
+def get_analyst_recommendations(ticker: str):
+    """This tool provides analyst recommendations for a given stock ticker.
+
+    Args:
+        ticker: the stock ticker
+    """
+    try:
+        user_ticker = yf.Ticker(ticker)
+        recommendations = user_ticker.recommendations
+
+        if (
+            recommendations is None
+            or not isinstance(recommendations, pd.DataFrame)
+            or recommendations.empty
+        ):
+            return {"error": f"No analyst recommendations found for ticker: {ticker}"}
+
+        raw = recommendations.to_dict(orient="records")
+        return raw
+    except Exception as e:
+        return {
+            "error": f"Failed to fetch analyst recommendations for {ticker}: {str(e)}"
+        }
+
+
+@mcp.tool()
+def get_insider_transactions(ticker: str):
+    """This tool provides insider transactions for a given stock ticker.
+
+    Args:
+        ticker: the stock ticker
+    """
+    try:
+        user_ticker = yf.Ticker(ticker)
+        insider = user_ticker.insider_transactions
+
+        if insider is None or insider.empty:
+            return {"error": f"No insider transactions found for ticker: {ticker}"}
+
+        raw = insider.to_dict(orient="records")
+        cleaned = []
+        for row in raw:
+            cleaned.append(
+                {
+                    k: (None if isinstance(v, float) and math.isnan(v) else v)
+                    for k, v in row.items()
+                }
+            )
+        return cleaned
+    except Exception as e:
+        return {"error": f"Failed to fetch insider transactions for {ticker}: {str(e)}"}
 
 
 if __name__ == "__main__":

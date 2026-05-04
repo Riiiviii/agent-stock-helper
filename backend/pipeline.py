@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import asyncio
+import pandas as pd
 
 load_dotenv(override=True)
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
@@ -11,13 +12,18 @@ finnhub_client = finnhub.Client(api_key=FINNHUB_API_KEY)
 
 
 async def run_analysis(ticker: str):
-    raw_ticker_info, raw_ticker_news, raw_financials, raw_price_history = (
-        await asyncio.gather(
-            asyncio.to_thread(fetch_records, ticker),
-            asyncio.to_thread(fetch_news, ticker),
-            asyncio.to_thread(fetch_financials, ticker),
-            asyncio.to_thread(fetch_price_history, ticker),
-        )
+    (
+        raw_ticker_info,
+        raw_ticker_news,
+        raw_financials,
+        raw_price_history,
+        raw_analyst_recs,
+    ) = await asyncio.gather(
+        asyncio.to_thread(fetch_records, ticker),
+        asyncio.to_thread(fetch_news, ticker),
+        asyncio.to_thread(fetch_financials, ticker),
+        asyncio.to_thread(fetch_price_history, ticker),
+        asyncio.to_thread(fetch_analyst_recommendations, ticker),
     )
 
     return {
@@ -25,7 +31,16 @@ async def run_analysis(ticker: str):
         "news": raw_ticker_news,
         "financials": raw_financials,
         "price_history": raw_price_history,
+        "analyst_recommendations": raw_analyst_recs,
     }
+
+
+def fetch_analyst_recommendations(ticker: str):
+    user_ticker = yf.Ticker(ticker)
+    recs = user_ticker.recommendations
+    if not isinstance(recs, pd.DataFrame) or recs.empty:
+        return []
+    return recs.to_dict(orient="records")
 
 
 def fetch_financials(ticker: str):
@@ -34,7 +49,7 @@ def fetch_financials(ticker: str):
 
     converted = {}
     for timestamp, values in raw.items():
-        converted[timestamp.isoformat()] = values
+        converted[timestamp.isoformat()] = values  # type: ignore
     return converted
 
 

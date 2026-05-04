@@ -17,24 +17,24 @@ class News(TypedDict):
 
 
 class CompanyInformation(TypedDict, total=False):
-    longBusinessSummary: str
+    long_business_summary: str
     symbol: str
-    shortName: str
-    recommendationKey: str
-    recommendationMean: float
-    numberOfAnalystOpinions: int
-    currentPrice: float
-    fiftyTwoWeekLow: float
-    fiftyTwoWeekHigh: float
-    trailingPE: float
-    forwardPE: float
-    profitMargins: float
-    revenueGrowth: float
-    earningsGrowth: float
+    short_name: str
+    recommendation_key: str
+    recommendation_mean: float
+    number_of_analyst_opinions: int
+    current_price: float
+    fifty_two_week_low: float
+    fifty_two_week_high: float
+    trailing_pe: float
+    forward_pe: float
+    profit_margins: float
+    revenue_growth: float
+    earnings_growth: float
     beta: float
     sector: str
     industry: str
-    marketCap: int
+    market_cap: int
 
 
 Financials = dict[str, dict[str, float | None]]
@@ -42,11 +42,21 @@ Financials = dict[str, dict[str, float | None]]
 PriceHistory = dict[str, dict[str, float | None]]
 
 
+class AnalystRecommendation(TypedDict):
+    period: str
+    strong_buy: int
+    buy: int
+    hold: int
+    sell: int
+    strong_sell: int
+
+
 class MCPData(TypedDict):
     company_information: CompanyInformation
     news: list[News]
     financials: Financials
     price_history: PriceHistory
+    analyst_recommendations: list[AnalystRecommendation]
 
 
 class DeductionDetail(TypedDict):
@@ -78,25 +88,25 @@ class DeducedMCP(TypedDict):
 
 class CompanySnapshot(TypedDict):
     symbol: str | None
-    shortName: str | None
-    recommendationKey: str | None
-    recommendationMean: float | None
-    numberOfAnalystOpinions: int | None
-    currentPrice: float | None
-    fiftyTwoWeekLow: float | None
-    fiftyTwoWeekHigh: float | None
-    trailingPE: float | None
-    forwardPE: float | None
-    profitMargins: float | None
-    revenueGrowth: float | None
-    earningsGrowth: float | None
-    targetMeanPrice: float | None
-    targetHighPrice: float | None
-    targetLowPrice: float | None
+    short_name: str | None
+    recommendation_key: str | None
+    recommendation_mean: float | None
+    number_of_analyst_opinions: int | None
+    current_price: float | None
+    fifty_two_week_low: float | None
+    fifty_two_week_high: float | None
+    trailing_pe: float | None
+    forward_pe: float | None
+    profit_margins: float | None
+    revenue_growth: float | None
+    earnings_growth: float | None
+    target_mean_price: float | None
+    target_high_price: float | None
+    target_low_price: float | None
     beta: float | None
     sector: str | None
     industry: str | None
-    marketCap: int | None
+    market_cap: int | None
 
 
 FinancialYearData = TypedDict(
@@ -132,6 +142,7 @@ class ResearchPack(TypedDict):
     financial_snapshot: FinancialSnapshot
     price_movement: PriceMovement
     recent_news: list[News]
+    analyst_recommendations: list[AnalystRecommendation]
     data_confidence: int
     flags: list[Issue]
 

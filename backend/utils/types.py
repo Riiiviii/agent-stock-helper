@@ -31,6 +31,9 @@ class CompanyInformation(TypedDict, total=False):
     profit_margins: float
     revenue_growth: float
     earnings_growth: float
+    target_mean_price: float
+    target_high_price: float
+    target_low_price: float
     beta: float
     sector: str
     industry: str

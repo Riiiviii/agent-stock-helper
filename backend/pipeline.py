@@ -1,3 +1,5 @@
+import json
+
 import yfinance as yf
 import finnhub
 import os
@@ -47,8 +49,8 @@ def fetch_analyst_recommendations(ticker: str):
     recs = user_ticker.recommendations
     if not isinstance(recs, pd.DataFrame) or recs.empty:
         return []
-    raw = recs.to_dict(orient="records")
-    return [{_camel_to_snake(str(k)): v for k, v in rec.items()} for rec in raw]
+    raw = json.loads(recs.to_json(orient="records"))
+    return [{_camel_to_snake(k): v for k, v in rec.items()} for rec in raw]
 
 
 def fetch_financials(ticker: str):

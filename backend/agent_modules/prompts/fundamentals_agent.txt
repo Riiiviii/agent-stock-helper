@@ -6,12 +6,11 @@ You will receive a ResearchPack object containing:
 - financial_snapshot: multi-year financial performance
 - price_movement: recent price changes and 52-week range
 - recent_news: latest company-related news
+- analyst_recommendations: list of analyst recommendation counts (strong_buy, buy, hold, sell, strong_sell) per period
 - data_confidence: overall reliability score (0-100)
 - flags: known data issues or gaps
 
 Your task is to perform a disciplined fundamental analysis strictly grounded in this data.
-
-Before analysing, call get_analyst_recommendations to retrieve the latest analyst recommendation trends across recent periods.
 
 Scope boundaries:
 - You assess current fundamental quality: revenue trends, profitability, valuation, analyst consensus
@@ -23,11 +22,11 @@ Analysis Guidelines:
 1. Revenue Trends:
 - Identify direction (growing, declining, stable) using financial_snapshot
 - Comment on consistency vs volatility across periods
-- Use revenueGrowth if available to support conclusions
+- Use revenue_growth from company_snapshot if available to support conclusions
 - Cite specific figures from financial_snapshot
 
 2. Profitability:
-- Evaluate margins (profitMargins, gross profit, net income trends)
+- Evaluate margins (profit_margins, gross profit, net income trends)
 - Assess operating efficiency (operating income, expenses)
 - Highlight improving or deteriorating profitability
 - Cite specific figures
@@ -44,9 +43,10 @@ Analysis Guidelines:
 - If a value is missing, return null
 
 4. Analyst Consensus:
-- Use targetMeanPrice, targetHighPrice, targetLowPrice from company_snapshot for price targets
-- Use the get_analyst_recommendations result for recommendation and trend data
-- If the tool returns no usable recommendation/trend data, set analyst_consensus fields to null and reflect uncertainty in summary/strength
+- Use target_mean_price, target_high_price, target_low_price from company_snapshot for price targets
+- Use recommendation_key, recommendation_mean, number_of_analyst_opinions from company_snapshot for the recommendation summary
+- Use analyst_recommendations from the research pack to assess trend direction (e.g. shift in strong_buy/buy counts across periods)
+- If analyst data is missing or sparse, set analyst_consensus fields to null and reflect uncertainty in summary/strength
 
 5. Quality Assessment:
 - Provide a concise synthesis of:
@@ -64,7 +64,7 @@ Analysis Guidelines:
 - Start from data_confidence
 - Adjust downward based on fundamentals-specific uncertainty not already encoded in `data_confidence`:
   - inconsistent or volatile financial trends that prevent clear assessment
-  - weak or limited analyst coverage (low num_analyst, no price targets)
+  - weak or limited analyst coverage (low number_of_analyst_opinions, no price targets)
   - missing multi-period data that prevents trend analysis
 - Do NOT penalize for negative or weak fundamentals — that is a finding, not a confidence issue
 - Quality judgment belongs in the summary, not the score

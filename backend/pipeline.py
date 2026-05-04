@@ -1,6 +1,7 @@
 import yfinance as yf
 import finnhub
 import os
+import re
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import asyncio
@@ -9,6 +10,12 @@ import pandas as pd
 load_dotenv(override=True)
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
 finnhub_client = finnhub.Client(api_key=FINNHUB_API_KEY)
+
+
+def _camel_to_snake(name: str) -> str:
+    """Convert camelCase to snake_case."""
+    s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
 async def run_analysis(ticker: str):
@@ -40,7 +47,8 @@ def fetch_analyst_recommendations(ticker: str):
     recs = user_ticker.recommendations
     if not isinstance(recs, pd.DataFrame) or recs.empty:
         return []
-    return recs.to_dict(orient="records")
+    raw = recs.to_dict(orient="records")
+    return [{_camel_to_snake(str(k)): v for k, v in rec.items()} for rec in raw]
 
 
 def fetch_financials(ticker: str):
@@ -67,7 +75,7 @@ def fetch_price_history(ticker: str):
 def fetch_records(ticker: str):
     user_ticker = yf.Ticker(ticker)
     ticker_info = user_ticker.info
-    return ticker_info
+    return {_camel_to_snake(str(k)): v for k, v in ticker_info.items()}
 
 
 def fetch_news(ticker: str):
@@ -75,3 +83,6 @@ def fetch_news(ticker: str):
     month_ago = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
     news = finnhub_client.company_news(ticker, _from=month_ago, to=today)
     return news
+
+
+print(asyncio.run(run_analysis("AAPL")))

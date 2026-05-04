@@ -2,7 +2,6 @@ from typing import Final
 from datetime import datetime, timedelta
 from .types import CompanyInformation, MCPData, News
 
-
 NEWS_COUNT_DEDUCTION: Final = -10
 NEWS_RECENCY_DEDUCTION: Final = -8
 MISSING_FINANCIALS_DEDUCTION: Final = -20
@@ -83,6 +82,7 @@ def calculate_confidence_score(mcp_data: MCPData) -> dict:
             "news": mcp_data["news"],
             "financials": mcp_data["financials"],
             "price_history": mcp_data["price_history"],
+            "analyst_recommendations": mcp_data["analyst_recommendations"],
         },
         "confidence_score": {
             "score": score,
@@ -149,10 +149,10 @@ def calculate_price_history_deduction(price_history: dict) -> int:
 
 def calculate_information_deductions(info: CompanyInformation) -> tuple[int, list[str]]:
     """
-    Returns deduction and list of missing fields from sector, industry, and marketCap.
+    Returns deduction and list of missing fields from sector, industry, and market_cap.
     Returns the deduction if any field is missing, along with which fields were absent.
     """
-    required_fields = ["sector", "industry", "marketCap"]
+    required_fields = ["sector", "industry", "market_cap"]
     if not info:
         return (MISSING_COMPANY_FIELDS_DEDUCTION, required_fields)
 

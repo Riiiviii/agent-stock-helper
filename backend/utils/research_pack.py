@@ -11,6 +11,7 @@ from .types import (
     PriceHistory,
     PriceMovement,
     ResearchPack,
+    AnalystRecommendation,
 )
 
 
@@ -31,6 +32,7 @@ def build_research_pack(data: DeducedMCP) -> ResearchPack:
         "financial_snapshot": financial_snapshot,
         "price_movement": price_movement,
         "recent_news": recent_news,
+        "analyst_recommendations": data["clean_data"]["analyst_recommendations"],
         "data_confidence": data["confidence_score"]["score"],
         "flags": data["issues"],
     }
@@ -38,32 +40,32 @@ def build_research_pack(data: DeducedMCP) -> ResearchPack:
 
 def get_company_summary(company_info: CompanyInformation) -> str:
     """Returns the long business summary string from company information."""
-    return company_info.get("longBusinessSummary", "")
+    return company_info.get("long_business_summary", "")
 
 
 def get_company_snapshot(company_info: CompanyInformation) -> CompanySnapshot:
     """Extracts key valuation and market metrics from company information."""
     keys = [
         "symbol",
-        "shortName",
-        "recommendationKey",
-        "recommendationMean",
-        "numberOfAnalystOpinions",
-        "currentPrice",
-        "fiftyTwoWeekLow",
-        "fiftyTwoWeekHigh",
-        "trailingPE",
-        "forwardPE",
-        "profitMargins",
-        "revenueGrowth",
-        "earningsGrowth",
-        "targetMeanPrice",
-        "targetHighPrice",
-        "targetLowPrice",
+        "short_name",
+        "recommendation_key",
+        "recommendation_mean",
+        "number_of_analyst_opinions",
+        "current_price",
+        "fifty_two_week_low",
+        "fifty_two_week_high",
+        "trailing_pe",
+        "forward_pe",
+        "profit_margins",
+        "revenue_growth",
+        "earnings_growth",
+        "target_mean_price",
+        "target_high_price",
+        "target_low_price",
         "beta",
         "sector",
         "industry",
-        "marketCap",
+        "market_cap",
     ]
     return cast(CompanySnapshot, {k: company_info.get(k) for k in keys})
 

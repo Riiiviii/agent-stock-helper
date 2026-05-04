@@ -83,6 +83,3 @@ def fetch_news(ticker: str):
     month_ago = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
     news = finnhub_client.company_news(ticker, _from=month_ago, to=today)
     return news
-
-
-print(asyncio.run(run_analysis("AAPL")))

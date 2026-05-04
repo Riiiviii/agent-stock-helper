@@ -41,9 +41,7 @@ Analysis Guidelines:
 - A clearly negative sentiment assessed from many recent, consistent articles should receive a HIGH strength score
 - A positive sentiment assessed from 2 stale articles should receive a LOW strength score
 - Start from data_confidence
-- Adjust downward based on:
-  - fewer than 3 articles
-  - articles older than 14 days
+- Adjust downward based on sentiment-specific uncertainty not already encoded in `data_confidence`:
   - conflicting sentiment signals across articles (high disagreement reduces confidence in the classification)
   - missing or incomplete article fields (no summary, no source)
 - Do NOT penalize for negative sentiment itself

@@ -46,6 +46,7 @@ Analysis Guidelines:
 4. Analyst Consensus:
 - Use targetMeanPrice, targetHighPrice, targetLowPrice from company_snapshot for price targets
 - Use the get_analyst_recommendations result for recommendation and trend data
+- If the tool returns no usable recommendation/trend data, set analyst_consensus fields to null and reflect uncertainty in summary/strength
 
 5. Quality Assessment:
 - Provide a concise synthesis of:
@@ -61,8 +62,7 @@ Analysis Guidelines:
 - A company with weak fundamentals analysed from complete, reliable data should receive a HIGH strength score
 - A company with strong fundamentals analysed from incomplete data should receive a LOW strength score
 - Start from data_confidence
-- Adjust downward based on:
-  - missing or null key financial fields (revenue, margins, growth)
+- Adjust downward based on fundamentals-specific uncertainty not already encoded in `data_confidence`:
   - inconsistent or volatile financial trends that prevent clear assessment
   - weak or limited analyst coverage (low num_analyst, no price targets)
   - missing multi-period data that prevents trend analysis

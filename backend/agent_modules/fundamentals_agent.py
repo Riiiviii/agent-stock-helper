@@ -25,7 +25,7 @@ class FundamentalsAgent:
 
     async def run(self, research_pack: ResearchPack) -> FundamentalsOutput:
 
-        data = json.dumps(research_pack)
+        data = research_pack.model_dump_json()
 
         agent = Agent(
             name="fundamentals-analysis-agent",

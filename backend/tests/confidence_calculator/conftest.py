@@ -2,6 +2,8 @@ import pytest
 from pathlib import Path
 from datetime import datetime, timezone
 
+from utils.types import CompanyInformation, News
+
 FIXTURES_DIR = Path(__file__).parent.parent / "_fixtures"
 
 # ── Company Price History Fixtures ────────────────────────────────────────
@@ -31,91 +33,94 @@ def insufficient_price_history():
 
 
 @pytest.fixture
-def empty_company_info():
-    return {}
+def empty_company_info() -> CompanyInformation:
+    return CompanyInformation()
 
 
 @pytest.fixture
-def missing_fields_company_info():
-    return {
-        "address1": "One Apple Park Way",
-        "city": "Cupertino",
-        # sector, industry, marketCap deliberately absent
-    }
+def missing_fields_company_info() -> CompanyInformation:
+    # Has some fields populated but the three required for full confidence
+    # (sector, industry, market_cap) are absent.
+    return CompanyInformation(
+        symbol="AAPL",
+        short_name="Apple",
+        long_business_summary="Designs and sells consumer electronics.",
+    )
 
 
 # ── Company News Fixtures ────────────────────────────────────────
 
 
 @pytest.fixture
-def empty_news():
+def empty_news() -> list[News]:
     return []
 
 
 @pytest.fixture
-def insufficient_company_news():
+def insufficient_company_news() -> list[News]:
+    now_ts = int(datetime.now(timezone.utc).timestamp())
     return [
-        {
-            "datetime": int(datetime.now(timezone.utc).timestamp()),
-            "headline": "",
-            "category": "",
-            "id": 1,
-            "image": "",
-            "related": "",
-            "source": "",
-            "summary": "",
-            "url": "",
-        },
-        {
-            "datetime": int(datetime.now(timezone.utc).timestamp()),
-            "headline": "",
-            "category": "",
-            "id": 2,
-            "image": "",
-            "related": "",
-            "source": "",
-            "summary": "",
-            "url": "",
-        },
+        News(
+            datetime=now_ts,
+            headline="",
+            category="",
+            id=1,
+            image="",
+            related="",
+            source="",
+            summary="",
+            url="",
+        ),
+        News(
+            datetime=now_ts,
+            headline="",
+            category="",
+            id=2,
+            image="",
+            related="",
+            source="",
+            summary="",
+            url="",
+        ),
     ]
 
 
 @pytest.fixture
-def stale_company_news():
+def stale_company_news() -> list[News]:
     return [
-        {
-            "datetime": 1609459200,
-            "headline": "",
-            "category": "",
-            "id": 1,
-            "image": "",
-            "related": "",
-            "source": "",
-            "summary": "",
-            "url": "",
-        },
-        {
-            "datetime": 1609459200,
-            "headline": "",
-            "category": "",
-            "id": 2,
-            "image": "",
-            "related": "",
-            "source": "",
-            "summary": "",
-            "url": "",
-        },
-        {
-            "datetime": 1609459200,
-            "headline": "",
-            "category": "",
-            "id": 3,
-            "image": "",
-            "related": "",
-            "source": "",
-            "summary": "",
-            "url": "",
-        },
+        News(
+            datetime=1609459200,
+            headline="",
+            category="",
+            id=1,
+            image="",
+            related="",
+            source="",
+            summary="",
+            url="",
+        ),
+        News(
+            datetime=1609459200,
+            headline="",
+            category="",
+            id=2,
+            image="",
+            related="",
+            source="",
+            summary="",
+            url="",
+        ),
+        News(
+            datetime=1609459200,
+            headline="",
+            category="",
+            id=3,
+            image="",
+            related="",
+            source="",
+            summary="",
+            url="",
+        ),
     ]
 
 

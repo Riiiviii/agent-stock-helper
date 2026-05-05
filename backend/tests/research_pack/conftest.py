@@ -1,5 +1,6 @@
 import pytest
 
+from utils.types import CompanyInformation, News
 
 # ── Research Pack Data Fixtures ────────────────────────────────────────
 
@@ -15,37 +16,37 @@ def valid_deduced_mcp(valid_mcp_data):
 
 
 @pytest.fixture
-def empty_company_info():
-    return {}
+def empty_company_info() -> CompanyInformation:
+    return CompanyInformation()
 
 
 # ── Research Pack Company Snapshot Fixtures ────────────────────────────────────────
 
 
 @pytest.fixture
-def invalid_company_info():
-    return {
-        "symbol": None,
-        "shortName": None,
-        "recommendationKey": None,
-        "recommendationMean": None,
-        "numberOfAnalystOpinions": None,
-        "currentPrice": None,
-        "fiftyTwoWeekLow": None,
-        "fiftyTwoWeekHigh": None,
-        "trailingPE": None,
-        "forwardPE": None,
-        "profitMargins": None,
-        "revenueGrowth": None,
-        "earningsGrowth": None,
-        "targetMeanPrice": None,
-        "targetHighPrice": None,
-        "targetLowPrice": None,
-        "beta": None,
-        "sector": None,
-        "industry": None,
-        "marketCap": None,
-    }
+def invalid_company_info() -> CompanyInformation:
+    return CompanyInformation(
+        symbol=None,
+        short_name=None,
+        recommendation_key=None,
+        recommendation_mean=None,
+        number_of_analyst_opinions=None,
+        current_price=None,
+        fifty_two_week_low=None,
+        fifty_two_week_high=None,
+        trailing_pe=None,
+        forward_pe=None,
+        profit_margins=None,
+        revenue_growth=None,
+        earnings_growth=None,
+        target_mean_price=None,
+        target_high_price=None,
+        target_low_price=None,
+        beta=None,
+        sector=None,
+        industry=None,
+        market_cap=None,
+    )
 
 
 # ── Research Pack Financial Snapshot Fixtures ────────────────────────────────────────
@@ -78,17 +79,17 @@ def insufficient_price_history():
 
 
 @pytest.fixture
-def less_than_15_news():
+def less_than_15_news() -> list[News]:
     return [
-        {
-            "category": "company",
-            "datetime": 1777395120,
-            "headline": "Apple's CEOs, Intel & AI, and Another SaaSpocalype",
-            "id": 139918601,
-            "image": "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
-            "related": "AAPL",
-            "source": "Yahoo",
-            "summary": "Intel has such high demand from the AI market that it's selling chips it once thought were worthless.",
-            "url": "https://finnhub.io/api/news?id=bd6df7daebf3de12e8d192c917b484e2ad71c64144ef903c58146f3c1001c622",
-        }
+        News(
+            category="company",
+            datetime=1777395120,
+            headline="Apple's CEOs, Intel & AI, and Another SaaSpocalype",
+            id=139918601,
+            image="https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png",
+            related="AAPL",
+            source="Yahoo",
+            summary="Intel has such high demand from the AI market that it's selling chips it once thought were worthless.",
+            url="https://finnhub.io/api/news?id=bd6df7daebf3de12e8d192c917b484e2ad71c64144ef903c58146f3c1001c622",
+        )
     ]

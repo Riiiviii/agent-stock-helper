@@ -22,7 +22,7 @@ class SentimentAgent:
     ).read_text()
 
     async def run(self, research_pack: ResearchPack) -> SentimentOutput:
-        data = json.dumps(research_pack)
+        data = research_pack.model_dump_json()
 
         sentiment_agent = Agent(
             name="sentiment-analysis-agent",

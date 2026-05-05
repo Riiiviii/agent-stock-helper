@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import cast
 
 from .types import (
     CompanyInformation,
@@ -7,11 +6,11 @@ from .types import (
     DeducedMCP,
     Financials,
     FinancialSnapshot,
+    FinancialYearData,
     News,
     PriceHistory,
     PriceMovement,
     ResearchPack,
-    AnalystRecommendation,
 )
 
 
@@ -20,27 +19,27 @@ def build_research_pack(data: DeducedMCP) -> ResearchPack:
     Transforms validated MCP data into a structured research pack
     consumed by all downstream panel agents.
     """
-    company_summary = get_company_summary(data["clean_data"]["company_information"])
-    company_snapshot = get_company_snapshot(data["clean_data"]["company_information"])
-    financial_snapshot = get_financial_snapshot(data["clean_data"]["financials"])
-    price_movement = get_price_movement(data["clean_data"]["price_history"])
-    recent_news = get_recent_news(data["clean_data"]["news"])
+    company_summary = get_company_summary(data.clean_data.company_information)
+    company_snapshot = get_company_snapshot(data.clean_data.company_information)
+    financial_snapshot = get_financial_snapshot(data.clean_data.financials)
+    price_movement = get_price_movement(data.clean_data.price_history)
+    recent_news = get_recent_news(data.clean_data.news)
 
-    return {
-        "company_summary": company_summary,
-        "company_snapshot": company_snapshot,
-        "financial_snapshot": financial_snapshot,
-        "price_movement": price_movement,
-        "recent_news": recent_news,
-        "analyst_recommendations": data["clean_data"]["analyst_recommendations"],
-        "data_confidence": data["confidence_score"]["score"],
-        "flags": data["issues"],
-    }
+    return ResearchPack(
+        company_summary=company_summary,
+        company_snapshot=company_snapshot,
+        financial_snapshot=financial_snapshot,
+        price_movement=price_movement,
+        recent_news=recent_news,
+        analyst_recommendations=data.clean_data.analyst_recommendations,
+        data_confidence=data.confidence_score.score,
+        flags=data.issues,
+    )
 
 
 def get_company_summary(company_info: CompanyInformation) -> str:
     """Returns the long business summary string from company information."""
-    return company_info.get("long_business_summary", "")
+    return company_info.long_business_summary or ""
 
 
 def get_company_snapshot(company_info: CompanyInformation) -> CompanySnapshot:
@@ -67,7 +66,7 @@ def get_company_snapshot(company_info: CompanyInformation) -> CompanySnapshot:
         "industry",
         "market_cap",
     ]
-    return cast(CompanySnapshot, {k: company_info.get(k) for k in keys})
+    return CompanySnapshot(**{k: getattr(company_info, k, None) for k in keys})
 
 
 def get_financial_snapshot(company_financials: Financials) -> FinancialSnapshot:
@@ -75,31 +74,12 @@ def get_financial_snapshot(company_financials: Financials) -> FinancialSnapshot:
     Extracts key income statement metrics per fiscal year, sorted newest first.
     Years with no usable data are excluded.
     """
-    keys = [
-        "Total Revenue",
-        "Gross Profit",
-        "Operating Income",
-        "Net Income",
-        "EBITDA",
-        "Diluted EPS",
-        "Research And Development",
-        "Operating Expense",
-    ]
-
-    snapshot = {}
+    snapshot: FinancialSnapshot = {}
     sorted_years = sorted(company_financials.items(), reverse=True)
 
-    for date, metrics in sorted_years:
-        year_data = {key: metrics.get(key) for key in keys}
-        values = list(year_data.values())
-        has_data = False
-
-        for value in values:
-            if value is not None:
-                has_data = True
-                break
-
-        if has_data:
+    for date, year_data in sorted_years:
+        # year_data is a FinancialYearData model; check if any field has a value
+        if any(v is not None for v in year_data.model_dump().values()):
             snapshot[date] = year_data
 
     return snapshot
@@ -113,15 +93,7 @@ def get_price_movement(company_price_movement: PriceHistory) -> PriceMovement:
     close_prices = company_price_movement.get("Close", {})
     valid_close_prices = {k: v for k, v in close_prices.items() if v is not None}
     if not valid_close_prices:
-        return {
-            "current_price": None,
-            "price_30d_ago": None,
-            "price_90d_ago": None,
-            "change_30d_pct": None,
-            "change_90d_pct": None,
-            "year_high": None,
-            "year_low": None,
-        }
+        return PriceMovement()
 
     parsed_dates = {k: datetime.fromisoformat(k) for k in valid_close_prices}
     latest_key = max(parsed_dates, key=parsed_dates.__getitem__)
@@ -155,20 +127,20 @@ def get_price_movement(company_price_movement: PriceHistory) -> PriceMovement:
     year_high = max(year_prices) if year_prices else None
     year_low = min(year_prices) if year_prices else None
 
-    return {
-        "current_price": current_price,
-        "price_30d_ago": price_30d_ago,
-        "price_90d_ago": price_90d_ago,
-        "change_30d_pct": change_30d_pct,
-        "change_90d_pct": change_90d_pct,
-        "year_high": year_high,
-        "year_low": year_low,
-    }
+    return PriceMovement(
+        current_price=current_price,
+        price_30d_ago=price_30d_ago,
+        price_90d_ago=price_90d_ago,
+        change_30d_pct=change_30d_pct,
+        change_90d_pct=change_90d_pct,
+        year_high=year_high,
+        year_low=year_low,
+    )
 
 
-def get_recent_news(company_news: list[News]) -> list:
+def get_recent_news(company_news: list[News]) -> list[News]:
     """Returns the 15 most recent news articles sorted by datetime descending."""
     sorted_news = sorted(
-        company_news, key=lambda article: article["datetime"], reverse=True
+        company_news, key=lambda article: article.datetime, reverse=True
     )
     return sorted_news[:15]

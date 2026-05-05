@@ -1,4 +1,5 @@
 import json
+from typing import cast
 
 import yfinance as yf
 import finnhub
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import asyncio
 import pandas as pd
+from utils.types import AnalystRecommendation, CompanyInformation, MCPData, News
 
 load_dotenv(override=True)
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
@@ -35,13 +37,15 @@ async def run_analysis(ticker: str):
         asyncio.to_thread(fetch_analyst_recommendations, ticker),
     )
 
-    return {
-        "company_information": raw_ticker_info,
-        "news": raw_ticker_news,
-        "financials": raw_financials,
-        "price_history": raw_price_history,
-        "analyst_recommendations": raw_analyst_recs,
-    }
+    return MCPData(
+        company_information=CompanyInformation(**raw_ticker_info),
+        news=[News(**n) for n in raw_ticker_news],
+        financials=raw_financials,
+        price_history=raw_price_history,
+        analyst_recommendations=[
+            AnalystRecommendation(**rec) for rec in raw_analyst_recs
+        ],
+    )
 
 
 def fetch_analyst_recommendations(ticker: str):
@@ -59,7 +63,8 @@ def fetch_financials(ticker: str):
 
     converted = {}
     for timestamp, values in raw.items():
-        converted[timestamp.isoformat()] = values  # type: ignore
+        cleaned = {k: (None if pd.isna(v) else v) for k, v in values.items()}
+        converted[cast(datetime, timestamp).isoformat()] = cleaned
     return converted
 
 

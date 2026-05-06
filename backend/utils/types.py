@@ -261,6 +261,7 @@ class BalanceSheetConcern(BaseModel):
     metric: str = Field(min_length=1)
     metric_value: float | None = None
     stress_implication: str = Field(min_length=1)
+    severity: Severity
 
 
 class RiskOutput(BaseModel):

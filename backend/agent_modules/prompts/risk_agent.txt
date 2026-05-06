@@ -34,6 +34,7 @@ Analysis Guidelines:
 - Identify metrics that suggest fragility under adverse conditions
 - Specifically: leverage (debt levels), liquidity (cash position, current ratio), interest coverage
 - For each concern, cite the specific metric and explain what happens under stress
+- metric_value must be a numeric value (e.g. 3.2, 0.85); if unavailable or qualitative, emit null and describe it in "metric" or "stress_implication" instead
 - If financial_snapshot lacks the relevant fields, do not speculate
 
 4. Data Layer Red Flags:
@@ -47,12 +48,15 @@ Analysis Guidelines:
 
 6. Strength Score (0-100):
 - This score reflects CONFIDENCE IN THE RISK ASSESSMENT, not severity of risks identified
-- Start from data_confidence
-- Adjust downward based on:
-  - missing financial fields needed to assess fragility (debt, cash, margins)
-  - news count below 3 (limited evidence for structural risks)
-  - inability to assess concentration due to data gaps
-  - high uncertainty about scenario likelihoods
+- Start from data_confidence (already incorporates data-quality deductions applied before this agent:
+    missing financials -20, news count < 3 -10, stale news > 14 days -8,
+    price history < 90 days -15, missing company fields -15)
+- Apply these additional deductions for analytical gaps you discover during this assessment:
+  - Specific fragility metrics absent from financial_snapshot (e.g. D/E ratio, interest coverage,
+    current ratio) even when some financial data exists: -10
+  - Cannot assess concentration risk due to missing segment or customer data: -10
+  - High uncertainty about downside scenario likelihoods (insufficient evidence to gauge plausibility): -10
+- Clamp the final value to [0, 100]; do not emit a value outside this range
 - A high score means you are confident in your assessment, regardless of whether risks are high or low
 
 Evidence Grounding Rule:
@@ -94,8 +98,9 @@ Output format:
     {
       "concern": string,
       "metric": string,
-      "metric_value": number | string,
-      "stress_implication": string
+      "metric_value": number | null,
+      "stress_implication": string,
+      "severity": "low" | "medium" | "high"
     }
   ],
   "data_layer_red_flags": [string],

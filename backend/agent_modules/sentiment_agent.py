@@ -33,6 +33,4 @@ class SentimentAgent:
         try:
             return SentimentOutput.model_validate_json(output)
         except ValidationError as e:
-            raise RuntimeError(
-                f"Fundamentals agent output failed validation: {e}"
-            ) from e
+            raise RuntimeError(f"Sentiment agent output failed validation: {e}") from e

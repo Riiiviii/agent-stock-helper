@@ -32,6 +32,4 @@ class RiskAgent:
         try:
             return RiskOutput.model_validate_json(output)
         except ValidationError as e:
-            raise RuntimeError(
-                f"Fundamentals agent output failed validation: {e}"
-            ) from e
+            raise RuntimeError(f"Risk agent output failed validation: {e}") from e

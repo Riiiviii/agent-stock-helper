@@ -20,8 +20,6 @@ Wrap both data sources as MCP servers. This is the right time — retrofitting l
 - `yfinance-mcp` — exposes tools: `get_company_information`, `get_company_financials`, `get_price_history`, `get_analyst_recommendations`, `get_insider_transactions`
 - `finnhub-mcp` — exposes tools: `get_company_news`
 
-Your agents will call these tools via the OpenAI SDK MCP integration, not call the APIs directly.
-
 **3. Verify raw data through MCP tools**
 
 ```json
@@ -125,9 +123,11 @@ Transform validated data into a single object passed to all downstream agents:
 ```json
 {
   "company_summary": "...",
+  "company_snapshot": {...},
   "financial_snapshot": {...},
   "price_movement": {...},
   "recent_news": [...],
+  "analyst_recommendations": [...],
   "data_confidence": 0-100,
   "flags": []
 }
@@ -138,7 +138,7 @@ Transform validated data into a single object passed to all downstream agents:
 ### Exit Criteria
 
 - Single clean object that every downstream agent receives
-- No agent fetches its own data after this point
+- No agent fetches its own data after this point (with one deliberate exception — see Competitive agent below)
 
 ### Status: ✅ Complete
 
@@ -152,13 +152,18 @@ Parallel, specialised reasoning from four distinct lenses.
 
 Build ONE agent at a time. Do not parallelize development.
 
-### 4.1 Fundamentals Agent
+Three of the four agents are pure transformations: they consume the research pack and produce structured output. The Competitive agent is the deliberate exception — it uses MCP tools to fetch data on competitor tickers dynamically, because cross-ticker comparison genuinely cannot be done from the primary ticker's research pack alone.
+
+### 4.1 Fundamentals Agent ✅
 
 - Revenue trends
 - Profitability
 - Valuation signals (P/E, margins)
+- Analyst consensus
 
-**Data source:** financial_snapshot from research pack + `get_analyst_recommendations` via MCP
+**Data source:** `financial_snapshot`, `company_snapshot`, `analyst_recommendations` from research pack.
+
+**Status:** Complete. Output validated via Pydantic, evidence-grounded prompt.
 
 ### 4.2 Sentiment Agent
 
@@ -166,41 +171,64 @@ Build ONE agent at a time. Do not parallelize development.
 - Short-term narrative (what's the market talking about)
 - Any major recent events
 
-**Data source:** recent_news from research pack
+**Data source:** `recent_news` from research pack.
 
-### 4.3 Risk/Macro Agent
+### 4.3 Risk Agent
 
-- External risks (interest rates, regulation, macro environment)
-- Industry-specific exposure
-- Any red flags in the data
+- Downside scenarios (what could go wrong, grounded in specific data)
+- Concentration and dependency risks
+- Balance sheet fragility under stress
+- Thesis breakers — falsifiable conditions that invalidate a bullish view
 
-**Data source:** financial_snapshot + recent_news + flags
+**Data source:** `financial_snapshot`, `company_snapshot`, `recent_news`, `flags`, `price_movement` from research pack.
+
+> Originally scoped as Risk/Macro. Macro reasoning was dropped because yfinance and Finnhub free tier provide no macro data, and reasoning about macro from LLM priors would launder unsupported claims as data-driven analysis. Scope now strictly company-specific risk.
 
 ### 4.4 Competitive Agent
 
-> **Note:** yfinance and Finnhub don't provide competitive data directly. This agent reasons from what it knows — it uses the company summary and financial snapshot to identify likely competitors and positioning, and uses the Finnhub news tool (via MCP) to pull any recent news mentioning competitors by name. Be honest about this limitation in your README.
+The only agent with dynamic MCP tool access. The justification: meaningful competitive analysis requires data on competitors themselves — their financials, their valuation, their recent news — not just mentions of them in the primary ticker's news. The research pack cannot pre-fetch this because competitors are only knowable after the LLM examines the company summary.
 
-- Likely competitive landscape based on sector/industry
-- Relative positioning signals from news
-- Obvious threats or advantages
+**Workflow:**
 
-**Data source:** company_summary + financial_snapshot + targeted Finnhub news queries via MCP
+1. Read `company_summary` and `financial_snapshot` from the primary ticker's research pack
+2. Identify up to 3 likely competitor tickers
+3. For each competitor, call `get_company_information` and `get_company_news` via MCP
+4. Produce comparative analysis grounded in the fetched data
+
+**Data source:** primary ticker's research pack + dynamic MCP calls for competitor data.
+
+**Constraints:**
+
+- **Hard cap of 3 competitor lookups.** Enforced in the agent code, not the prompt.
+- **Graceful failure on missing competitors.** If a competitor ticker doesn't exist or returns empty data, the agent continues with what it has.
+- **Per-call timeout** on each MCP call.
+- **`competitors_analyzed` field in output schema** — lists which tickers were actually fetched, so the Judge can see what comparison was made.
+- **No financial trades data.** Just company info + news for each competitor. Keeps the agent fast.
+
+**Output focus:**
+
+- Identified competitive set with rationale
+- Comparative positioning (size, growth, profitability where data allows)
+- Threats and advantages backed by competitor news mentions
+- Honest acknowledgement when competitor data is sparse or missing
+
+> This is the agent that justifies the MCP architecture in this project. It's also the agent with the most failure modes — LLM picks wrong competitors, MCP calls fail, comparison data is incomplete. Build with telemetry on every step so you can debug when output quality drops.
 
 ### Critical Rule
 
 Each agent must:
 
-- Have a distinct focus that doesn't overlap with others
-- Produce structured output (not free-form prose)
-- Reference only its designated data sources
+- Have a distinct interpretive lens that doesn't overlap with others (same data, different question is fine)
+- Produce structured output validated by Pydantic
+- Cite evidence from its data sources for every non-trivial claim
 
-If two agents sound the same → your prompts are wrong. Tighten the schemas.
+If two agents sound the same → your prompts are wrong. Tighten the schemas and the scope boundaries.
 
 ### Exit Criteria
 
-For one ticker, you get 4 clearly different perspectives with non-overlapping insights.
+For one ticker, you get 4 clearly different perspectives with non-overlapping insights and evidence-grounded claims. The Competitive agent's `competitors_analyzed` field is non-empty for at least one large-cap ticker.
 
-### Status: ⏳ Pending
+### Status: ⏳ Pending (Fundamentals complete; Sentiment, Risk, Competitive remaining)
 
 ---
 
@@ -236,6 +264,10 @@ Synthesise multiple perspectives into one coherent, structured thesis.
 - `thesis_strength` should be lower when agents disagree significantly
 - Run at `temperature=0` for consistency
 
+**3. Define how `confidence` is derived**
+
+The Judge's `confidence` is a function of (a) the panel agents' `strength` scores (which now consistently mean analytical confidence across all four agents) and (b) the degree of agreement between agents. A defensible starting formula: `confidence = mean(agent_strengths) - disagreement_penalty`. Decide the formula deliberately rather than letting the LLM improvise.
+
 > The judge cannot say "buy" or "sell." It produces a structured reasoning output. That's a feature, not a limitation.
 
 ### Exit Criteria
@@ -257,13 +289,15 @@ Wire everything together into a reliable, observable pipeline.
 ### Flow
 
 ```
-fetch (MCP) → validate → research pack → panel agents (parallel) → judge
+fetch (yfinance + Finnhub) → validate (data integrity layer) → research pack → panel agents (parallel) → judge
 ```
 
 ### Tasks
 
-- Parallel panel execution with `asyncio`
-- Structured error handling at each stage (don't let one agent failure kill the run)
+- Parallel panel execution with `asyncio.gather`
+- Structured error handling at each stage (one agent failure must not kill the run)
+- Per-agent timeouts on `Runner.run`
+- Per-MCP-call timeouts inside the Competitive agent
 - Structured logging at every stage with a `run_id`:
 
 ```json
@@ -276,12 +310,13 @@ fetch (MCP) → validate → research pack → panel agents (parallel) → judge
 }
 ```
 
-- Timeout handling on MCP tool calls
+- Pydantic `ValidationError` handling: skip the agent, log the failure, continue with the rest
 
 ### Exit Criteria
 
 - One API call runs the full pipeline reliably
 - Individual stage failures are caught and logged, not silently swallowed
+- Competitive agent failures (MCP timeouts, missing competitor data) are handled gracefully without taking down the run
 
 ### Status: ⏳ Pending
 
@@ -329,7 +364,7 @@ View results. Nothing more.
 
 - Ticker input
 - Trigger analysis
-- Display: summary, risks, tailwinds, confidence score, conflicting signals
+- Display: summary, risks, tailwinds, confidence score, conflicting signals, competitors analyzed
 - Analysis history per user
 
 > No design obsession. Have AI generate the UI. Your time is in the backend.
@@ -397,11 +432,20 @@ Pick 5 tickers. For each, run both your system and the baseline. Score both on t
 
 Run your system twice on the same ticker. Compare `thesis_strength` scores, `key_risks` lists, and `final_summary`. Document any meaningful divergence — this signals you understand LLM non-determinism.
 
-**4. Document results honestly in the README**
+**4. Evaluate the Competitive agent specifically**
+
+For 3 tickers, manually verify:
+
+- The competitors the agent identified are reasonable
+- The comparative claims it made are supported by the fetched data
+- The output meaningfully differs from what the agent could produce without MCP calls
+
+**5. Document results honestly in the README**
 
 ### Exit Criteria
 
 - You can say with evidence: "My system produces more structured and risk-aware outputs than a single-prompt baseline"
+- The Competitive agent's MCP usage produces measurably better output than a research-pack-only version
 - Results are documented in the README
 
 ### Status: ⏳ Pending
@@ -412,7 +456,7 @@ Run your system twice on the same ticker. Compare `thesis_strength` scores, `key
 
 - Tighten prompts based on real outputs you've seen
 - Improve schemas where agents are still producing vague outputs
-- Edge case handling: tickers with no news, very small companies, delisted stocks
+- Edge case handling: tickers with no news, very small companies, delisted stocks, tickers with no obvious competitors
 - README: architecture diagram, tech stack, eval results, public URL
 
 ### Status: ⏳ Pending
@@ -422,10 +466,10 @@ Run your system twice on the same ticker. Compare `thesis_strength` scores, `key
 ## Biggest Risks
 
 **1. Agent outputs become generic**
-Fix: tighten schemas, force each agent to reference specific figures from the research pack
+Fix: tighten schemas, force each agent to reference specific figures from the research pack via evidence-grounding fields enforced by Pydantic.
 
-**2. Competitive agent is too vague**
-Fix: scope it explicitly to news-based evidence + known sector positioning. Don't promise what the data can't support.
+**2. Competitive agent picks wrong competitors or hallucinates comparisons**
+Fix: hard cap on competitor count, graceful failure on missing data, `competitors_analyzed` field in the output so failures are visible. Evaluate output quality against a research-pack-only baseline in Phase 10.
 
 **3. You stall on frontend**
 Fix: have AI generate the entire UI. Your value is in the backend.
@@ -436,6 +480,9 @@ Fix: Clerk or Supabase Auth only. One afternoon maximum.
 **5. You skip deployment**
 Fix: it's not optional. A private repo with no public URL is not a portfolio piece.
 
+**6. You don't finish**
+Fix: Phases 7–11 are where most portfolio projects die. The eval layer (Phase 10) is the single highest-value differentiator. Don't stall at Phase 6 because orchestration feels less satisfying than design.
+
 ---
 
 ## Final Check
@@ -443,9 +490,11 @@ Fix: it's not optional. A private repo with no public URL is not a portfolio pie
 If you finish this, you will have:
 
 - A real deployed system with a public URL
-- Demonstrated MCP integration with justified architecture
 - Multi-agent orchestration with a non-trivial panel + judge pattern
-- Structured evaluation methodology you can defend
+- Pydantic-validated agent outputs with evidence-grounding enforcement
+- A research pack contract that cleanly separates data layer from reasoning layer
+- A Competitive agent that uses MCP for genuine cross-ticker comparative analysis — load-bearing, not decorative
+- Structured evaluation methodology you can defend, including a head-to-head Competitive agent eval
 - Per-user persistence with auth
 
 If you half-build it, it becomes another AI project with no depth.

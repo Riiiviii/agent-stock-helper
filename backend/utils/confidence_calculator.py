@@ -1,5 +1,5 @@
 from typing import Final
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from .types import (
     CompanyInformation,
     ConfidenceScore,
@@ -116,8 +116,7 @@ def calculate_news_deductions(news: list[News]) -> tuple[int, int]:
     news_count_deduction = NEWS_COUNT_DEDUCTION if len(news) < 3 else 0
 
     most_recent = max(
-        datetime.fromtimestamp(article.datetime, tz=timezone.utc)
-        for article in news
+        datetime.fromtimestamp(article.datetime, tz=timezone.utc) for article in news
     )
     cutoff = datetime.now(timezone.utc) - timedelta(days=14)
     news_time_deduction = NEWS_RECENCY_DEDUCTION if most_recent < cutoff else 0

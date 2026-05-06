@@ -1,3 +1,5 @@
+from pydantic import ValidationError
+
 from utils.types import ResearchPack, SentimentOutput
 from typing import Final
 from pathlib import Path
@@ -6,13 +8,6 @@ from dotenv import load_dotenv
 import json
 
 load_dotenv(override=True)
-
-REQUIRED_KEYS: Final[set[str]] = {
-    "general_sentiment",
-    "summary",
-    "notable_events",
-    "strength",
-}
 
 
 class SentimentAgent:
@@ -36,14 +31,8 @@ class SentimentAgent:
 
     def _parse_result(self, output: str) -> SentimentOutput:
         try:
-            parsed = json.loads(output)
-        except json.JSONDecodeError as e:
+            return SentimentOutput.model_validate_json(output)
+        except ValidationError as e:
             raise RuntimeError(
-                f"Sentiment agent returned invalid JSON: {str(e)}"
+                f"Fundamentals agent output failed validation: {e}"
             ) from e
-
-        missing = REQUIRED_KEYS - set(parsed.keys())
-        if missing:
-            raise ValueError(f"Missing sentiment fields: {sorted(missing)}")
-
-        return parsed

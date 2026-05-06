@@ -1,20 +1,12 @@
+from pydantic import ValidationError
+
 from utils.types import ResearchPack, FundamentalsOutput
 from typing import Final
 from pathlib import Path
 from agents import Agent, Runner, trace
 from dotenv import load_dotenv
-import json
 
 load_dotenv(override=True)
-
-REQUIRED_KEYS: Final[set[str]] = {
-    "revenue_trends",
-    "profitability",
-    "valuation_signals",
-    "analyst_consensus",
-    "summary",
-    "strength",
-}
 
 
 class FundamentalsAgent:
@@ -39,14 +31,8 @@ class FundamentalsAgent:
 
     def _parse_result(self, output: str) -> FundamentalsOutput:
         try:
-            parsed = json.loads(output)
-        except json.JSONDecodeError as e:
+            return FundamentalsOutput.model_validate_json(output)
+        except ValidationError as e:
             raise RuntimeError(
-                f"Fundamentals agent returned invalid JSON: {str(e)}"
+                f"Fundamentals agent output failed validation: {e}"
             ) from e
-
-        missing = REQUIRED_KEYS - set(parsed.keys())
-        if missing:
-            raise ValueError(f"Missing fundamentals fields: {sorted(missing)}")
-
-        return parsed

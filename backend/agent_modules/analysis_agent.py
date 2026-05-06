@@ -1,5 +1,3 @@
-from pydantic import ValidationError
-
 from utils.types import ResearchPack
 from typing import Final
 from pathlib import Path
@@ -28,19 +26,23 @@ class AnalysisAgent(Generic[TOutput]):
         self.instruction: str = (
             Path(__file__).parent / "prompts" / prompt_file_name
         ).read_text()
+        self._agent = Agent(
+            name=f"{self.name}-analysis-agent",
+            instructions=self.instruction,
+            model=self.MODEL,
+            output_type=self.output_model,
+        )
 
     async def run(self, research_pack: ResearchPack) -> TOutput:
         data = research_pack.model_dump_json()
 
-        agent = Agent(
-            name=f"{self.name}-analysis-agent",
-            instructions=self.instruction,
-            model=self.MODEL,
-        )
-
         with trace(f"{self.name.capitalize()} Agent"):
-            result = await Runner.run(agent, data)
-            return self._parse_result(result.final_output)
+            result = await Runner.run(self._agent, data)
+            if result.final_output is None:
+                raise RuntimeError(
+                    f"{self.name.capitalize()} agent produced no final output"
+                )
+            return result.final_output
 
     def _parse_result(self, output: str) -> TOutput:
         try:
